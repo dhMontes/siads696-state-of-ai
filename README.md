@@ -4,15 +4,6 @@ Milestone 2 Project Repo
 
 ## Shared data preparation
 
-[josue_src](josue_src/README.md) prepares the shared data for SIADS 696: Milestone II.
-It keeps the original records and adds cleaned text, parsed dates and review flags.
+[Josue's notebook](josue_src/preprocessing.ipynb) prepares one common CSV and explains its text and date checks. The [package README](josue_src/README.md) gives the setup and loading commands.
 
-Run from the repository root:
-
-```powershell
-python josue_src/prepare.py
-```
-
-The command reads `data/raw/Final_Database.csv` and writes local outputs to
-`data/processed/common_intake/`. Start with `common_records.csv` for either analysis.
-The [package README](josue_src/README.md) shows how to load it and run the notebook.
+The table keeps all 2,571 source records and 29 original fields, adding cleaned text, parsed dates and a source-record position. Analysis-specific filtering and models belong to the supervised and topic workstreams.
