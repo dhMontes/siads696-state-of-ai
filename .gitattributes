@@ -1,0 +1,2 @@
+# Keep the frozen CSV byte-identical across platforms.
+data/raw/*.csv -text
