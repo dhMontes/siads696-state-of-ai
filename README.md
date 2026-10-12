@@ -2,13 +2,14 @@
 
 SIADS 696: Milestone II · University of Michigan, Master of Applied Data Science
 
-This project examines U.S. state AI legislation from two angles: which policy
-themes recur across states, and which bill information distinguishes recorded
-legislative outcomes. The team combines supervised outcome classification with
-unsupervised topic analysis.
+This project studies U.S. state AI legislation through two analyses: identifying
+recurring policy themes across states and classifying recorded legislative
+outcomes using bill information.
 
-Shared data preparation is implemented. Trained models, topic results and the
-final report are not yet included in this repository.
+**Current progress:** Shared data preparation is implemented. Trained models,
+topic results and the final report are not yet included in this repository.
+
+[Workflow](#project-workflow) · [Data source](#data-source) · [Quickstart](#quickstart) · [Files](#repository-guide) · [Scope](#scope-and-next-stages)
 
 ## Project workflow
 
@@ -30,51 +31,71 @@ final report are not yet included in this repository.
                  Combined findings and report
 ```
 
-The two analyses are planned around the same source snapshot. Shared preparation keeps the
-original records; each analysis makes its own feature and eligibility choices.
+Both analyses will start from the same source snapshot. Shared preparation keeps the original
+records; each analysis chooses its own features and which records to include.
 
 ## Data source
 
 The starting point is Bhargava and Soliman's
 [U.S. State AI Legislation Corpus, version 4](https://zenodo.org/records/20781731).
-The main file on Zenodo is `Final_Database_10.csv`; its unchanged repository copy
-is [data/raw/Final_Database.csv](data/raw/Final_Database.csv).
 
-The snapshot contains 2,571 records and 29 original fields, including bill text,
-state information, dates, recorded outcomes and publisher-supplied
-classifications. A source record is not automatically a verified unique bill.
+| Snapshot | Details |
+| --- | --- |
+| Published file | `Final_Database_10.csv` |
+| Repository copy | [data/raw/Final_Database.csv](data/raw/Final_Database.csv), unchanged from the published file |
+| Dimensions | 2,571 records and 29 original fields |
+| Contents | Bill text, state information, dates, recorded outcomes and publisher-supplied classifications |
 
+The record count is not a verified count of unique bills.
 `Bill_Status` and `Bill_Status_Grouped` describe recorded legislative outcomes.
 The lowercase `status` field describes publisher processing, not a bill outcome.
 
-## Run the shared preparation
+## Quickstart
 
-Use Python with pip. Run these commands from the repository root:
+Run these commands from the repository root, using Python with pip.
+
+### 1. Install packages
 
 ```shell
 python -m pip install -r requirements.txt
+```
+
+### 2. Prepare the shared data
+
+```shell
 python src/prepare.py
 ```
 
-The script writes `data/processed/common_intake/common_records.csv`: all 2,571
-records and 29 original fields, plus eight additions for a 37-column table.
-These additions are five cleaned text fields, two dates in year-month-day format,
-and `source_row`, the record's one-based position in this source snapshot.
+The script creates `data/processed/common_intake/common_records.csv`.
+Generated tables are excluded from Git; each teammate runs this step locally.
 
-Cleaning normalizes Unicode and whitespace while preserving case, punctuation,
-numbers and negation. Original values remain alongside the cleaned fields.
-The script checks that the saved original fields and record order match the source.
-
-For the explanation and coverage checks, open the preparation notebook:
+### 3. Open the walkthrough
 
 ```shell
 jupyter lab notebooks/01_data_preparation.ipynb
 ```
 
-Run its cells from top to bottom. Generated tables stay local and are excluded
-from Git; teammates reproduce them with the preparation command.
+Run the notebook cells from top to bottom for the preparation explanation,
+text-coverage checks and date/text review findings.
 
-## Load the prepared table
+## Prepared data
+
+The output keeps all 2,571 source records. Its 37 columns contain the 29 original
+fields and eight additions:
+
+| Field group | Count | Purpose |
+| --- | --- | --- |
+| Original fields | 29 | Preserve the source values and original record order |
+| Cleaned text copies (`*_clean`) | 5 | Normalize Unicode and whitespace while retaining the originals |
+| Dates in year-month-day format | 2 | Make the available introduction and version dates easier to compare |
+| `source_row` | 1 | Identify the record's one-based position in this source snapshot |
+
+The script checks that the saved original fields and record order match the
+source. These 37 columns are a shared working table, not a prescribed list of
+model inputs. `source_row` is a source locator, not a model feature or a unique-bill
+identifier.
+
+### Load the table
 
 From the repository root:
 
@@ -88,26 +109,27 @@ common = pd.read_csv(
 )
 ```
 
-Blank cells remain empty strings. `source_row` is a source locator, not a model
-feature or a unique-bill identifier.
+Blank cells remain empty strings.
 
 ## Repository guide
 
-| File or folder | Purpose |
+| File | Purpose |
 | --- | --- |
-| [data/raw/Final_Database.csv](data/raw/Final_Database.csv) | Preserved source snapshot. |
-| [src/prepare.py](src/prepare.py) | Reusable shared preparation. |
-| [notebooks/00_source_inspection.ipynb](notebooks/00_source_inspection.ipynb) | Initial raw-data preview and schema inspection. |
-| [notebooks/01_data_preparation.ipynb](notebooks/01_data_preparation.ipynb) | Preparation walkthrough, text coverage and date/text review checks. |
-| [requirements.txt](requirements.txt) | Packages used by the committed script and notebooks. |
+| [data/raw/Final_Database.csv](data/raw/Final_Database.csv) | Preserved source snapshot |
+| [src/prepare.py](src/prepare.py) | Reusable shared preparation |
+| [notebooks/00_source_inspection.ipynb](notebooks/00_source_inspection.ipynb) | Initial raw-data preview and schema inspection |
+| [notebooks/01_data_preparation.ipynb](notebooks/01_data_preparation.ipynb) | Preparation walkthrough, text coverage and date/text review checks |
+| [requirements.txt](requirements.txt) | Packages used by the committed script and notebooks |
 
-## Preparation boundaries
+## Scope and next stages
 
-Records with blank summaries or extracts, date differences and repeated wording
-remain in the shared table. The notebook shows these findings for review.
-Preparation does not select the target, remove records, deduplicate bills,
-vectorize text, split the data or train models.
+Shared preparation retains records with blank summaries or extracts, date
+differences and repeated wording. The notebook presents these findings for review.
 
-Supervised and topic-analysis notebooks will document their inputs, filtering,
-methods and results as those stages are completed. Their findings and the final
-report will be linked here for the submitted project.
+Target selection, record filtering, deduplication, text vectorization, data splits
+and model training belong to the analysis stages. They are not applied by the
+shared preparation script.
+
+The supervised and topic-analysis notebooks will document their inputs,
+filtering, methods and results as those stages are completed. Their findings
+and the final report will be linked here for the submitted project.
