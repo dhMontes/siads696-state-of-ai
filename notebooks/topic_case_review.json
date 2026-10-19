@@ -1,5 +1,5 @@
 {
-  "review_scope": "Purposive reading of stored Bill_Text after inspecting baseline topics 3 and 4. Codex-assisted interpretation, not independent human validation or current-law verification.",
+  "review_scope": "Purposive reading of stored Bill_Text after inspecting baseline topics 3 and 4. Not independently validated and not a current-law verification.",
   "cases": [
     {
       "source_row": "1856",

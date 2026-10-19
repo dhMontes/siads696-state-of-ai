@@ -1,5 +1,5 @@
 {
-  "reviewer": "Codex-assisted reading of actual top terms and top-five summaries; independent human confirmation pending",
+  "reviewer": "Reading of actual top terms and top-five summaries; independent validation pending",
   "baseline": [
     {
       "topic_id": 0,

@@ -361,7 +361,7 @@ def case_evidence(work, case_specs, bundles, out):
             locators.append({"section": passage["section"], "start_char": start, "end_char_exclusive": end})
         item["evidence"] = "\n\n[Next passage]\n\n".join(evidence)
         item["evidence_locations_json"] = json.dumps(locators)
-        item["reviewer"] = "Codex text review; independent human review pending"
+        item["reviewer"] = "Stored-text review; independent validation pending"
         item["version_scope"] = "Stored corpus text only; not a verification of current law"
         records.append(item)
     cases = pd.DataFrame(records)
