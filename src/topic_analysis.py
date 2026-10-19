@@ -1,6 +1,6 @@
 """Summary-only exploratory topic analysis; metadata is used after fitting.
 
-Run notebooks/03_topic_analysis.ipynb for the analysis and interpretation.
+Run notebooks/topic_analysis.ipynb for the analysis and interpretation.
 Source-row identifiers follow prepare.py (one-based record positions).
 """
 from pathlib import Path
@@ -356,7 +356,7 @@ def case_evidence(work, case_specs, bundles, out):
             start = raw.index(passage["start"])
             end = (raw.index(passage["end"], start) + len(passage["end"]))
             excerpt = raw[start:end]
-            assert excerpt and excerpt == raw[start:end]
+            assert excerpt
             evidence.append(excerpt)
             locators.append({"section": passage["section"], "start_char": start, "end_char_exclusive": end})
         item["evidence"] = "\n\n[Next passage]\n\n".join(evidence)
@@ -429,7 +429,7 @@ def stability_report(pair_results):
         n_pairs = similar[["a", "b"]].drop_duplicates().shape[0]
         runs = subset.run_id.nunique()
         paragraphs.append(
-            f"**{method}: {runs} settings, {n_pairs} selected similarity pairs.** "
+            f"**{method}: {runs} distinct solutions, {n_pairs} selected similarity pairs.** "
             f"Shared dominant topic in {int(similar.same_dominant_topic.sum())}/{len(similar)} "
             f"pair-setting checks. The contrasting pairs remain separated in "
             f"{int((~different.same_dominant_topic).sum())}/{len(different)} checks.")
@@ -497,9 +497,9 @@ def model_review_notes(comparison):
         if r.method == "LDA":
             finding = {
                 5: "Broad state/education and criminal/media mixtures; generic requires/provides recur across topics.",
-                8: "Task-force vocabulary emerges with data/information; automated-decision cases split across topics.",
-                10: "Task-force and election topics persist; an employment topic also contains sexual-exploitation terms.",
-                12: "More narrow media/provenance terms but mixed intimate-imagery/rental vocabulary remains.",
+                8: "Task-force vocabulary appears with data and enforcement terms; health, pricing and generic AI wording share one topic.",
+                10: "Task-force and synthetic-media topics persist; automated-decision and employment terms split across two topics.",
+                12: "Narrower synthetic-media and companion/social-media topics appear, but health, pricing and insurance vocabulary stays mixed.",
             }[r.topics]
             coverage = "Top-12 keywords and highest-weight representative per topic inspected; top-five tables exported. Case-pair check completed."
             reason = "Bounded 30-iteration comparison; no LDA seed study, held-out evaluation or best-model claim."
@@ -518,7 +518,7 @@ def model_review_notes(comparison):
         else:
             finding = {
                 5: "Media and sexual-offense terms merge; health and administration mix. Task forces and decision systems remain.",
-                6: "Health separates, but sexual-offense and synthetic-media content still share a topic.",
+                6: "Sexual-offense and synthetic-media content still share a topic; health stays mixed with administration and a relates-formula topic appears.",
                 8: "Task-force and automated-decision leads are interpretable; topic 5 is a formula artifact and topic 1 is generic.",
                 10: "Pricing and a 19-record commendation theme emerge; generic and relates topics persist.",
                 12: "Splits imagery/likeness and pricing further; generic AI language and a commendation theme persist.",

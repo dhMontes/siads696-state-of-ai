@@ -27,7 +27,7 @@ class TopicArtifactTests(unittest.TestCase):
                                  dtype=str, keep_default_na=False).set_index("source_row")
 
     def test_all_notebook_cells_executed_without_errors(self):
-        notebook = nbformat.read(ROOT / "notebooks/03_topic_analysis.ipynb", as_version=4)
+        notebook = nbformat.read(ROOT / "notebooks/topic_analysis.ipynb", as_version=4)
         nbformat.validate(notebook)
         counts = []
         for cell in notebook.cells:

@@ -182,7 +182,7 @@ class TopicAnalysisTests(unittest.TestCase):
         report = stability_report(data)
         self.assertIn("LDA: not run in this execution", report)
         self.assertIn("1/1", report)
-        self.assertNotIn("LDA: 4 settings", report)
+        self.assertNotIn("LDA: 4 distinct solutions", report)
 
     def test_failed_relationship_is_not_reported_as_stable(self):
         data = pd.DataFrame([{"run_id": "nmf_baseline_k8_seed42_nndsvda", "a": "1", "b": "2",
