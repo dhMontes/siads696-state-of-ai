@@ -240,7 +240,7 @@ def align_topics(reference, candidate):
     return aligned
 
 
-def run_experiments(work, baseline, out, include_lda=True):
+def run_experiments(work, baseline, out, include_lda=True, verbose=False):
     """Same records across runs; only summaries enter any fit."""
     specs = [("NMF", "baseline", k, 42, "nndsvda") for k in [5, 6, 8, 10, 12]]
     specs += [("NMF", "baseline", k, seed, "nndsvda") for k in [6, 8, 10] for seed in [7, 21]]
@@ -277,7 +277,8 @@ def run_experiments(work, baseline, out, include_lda=True):
             **topic_metrics(X, model)})
         for row in align_topics(baseline, bundle):
             alignment.append({"run_id": run_id, **row})
-        print(f"{run_id}: {seconds:.1f}s, {model.n_iter_} iterations", flush=True)
+        if verbose:
+            print(f"{run_id}: {seconds:.1f}s, {model.n_iter_} iterations", flush=True)
     comparison = pd.DataFrame(metrics)
     topic_df, reps_df = pd.concat(all_topics, ignore_index=True), pd.concat(all_reps, ignore_index=True)
     comparison.to_csv(out / "model_comparison.csv", index=False)
