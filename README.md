@@ -89,6 +89,8 @@ fields and eight additions:
 | Cleaned text copies (`*_clean`) | 5 | Normalize Unicode and whitespace while retaining the originals |
 | Dates in year-month-day format | 2 | Make the available introduction and version dates easier to compare |
 | `source_row` | 1 | Identify the record's one-based position in this source snapshot |
+| Sponsor Party counts, proportions totals| 7| Engineered features from Sponsor Party to best utilize available data.|
+|Bipartisan Support|1|Flag for bills that are sponsored with members of both major parties derived from Sponsor Party counts.|
 
 The script checks that the saved original fields and record order match the
 source. These 37 columns are a shared working table, not a prescribed list of
@@ -129,6 +131,9 @@ differences and repeated wording. The notebook presents these findings for revie
 Target selection, record filtering, deduplication, text vectorization, data splits
 and model training belong to the analysis stages. They are not applied by the
 shared preparation script.
+
+Row duplicates has been taken care within shared preparation as well as feature engineering to ensure 
+all members have access to the same level of features. 
 
 The supervised and topic-analysis notebooks will document their inputs,
 filtering, methods and results as those stages are completed. Their findings
