@@ -125,7 +125,6 @@ Blank cells remain empty strings.
 | [notebooks/02_data_split_exploration.ipynb](notebooks/02_data_split_exploration.ipynb) | Duplicate review, target classes and the train/validation/test split |
 | [notebooks/03_topic_analysis.ipynb](notebooks/03_topic_analysis.ipynb) | Topic models, figures and provision-level case review |
 | [src/topic_analysis.py](src/topic_analysis.py) | Helpers used by the topic notebook |
-| [src/execute_notebook.py](src/execute_notebook.py) | Re-execute a notebook and export HTML |
 | [tests/](tests/) | Checks for the prepared data and saved topic results |
 | [requirements.txt](requirements.txt) | Packages used by the committed script and notebooks |
 
