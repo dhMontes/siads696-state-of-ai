@@ -12,7 +12,3 @@ __pycache__/
 
 # Reproducible topic tables, figures, model objects, and HTML export
 /outputs/topic_analysis/
-/outputs/web_refresh/
-/outputs/expanded_topic_analysis/
-
-/outputs/archive_2571_pre_pr4/
