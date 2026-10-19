@@ -122,7 +122,7 @@ Blank cells remain empty strings.
 | [src/prepare.py](src/prepare.py) | Reusable shared preparation |
 | [notebooks/00_source_inspection.ipynb](notebooks/00_source_inspection.ipynb) | Initial raw-data preview and schema inspection |
 | [notebooks/01_data_preparation.ipynb](notebooks/01_data_preparation.ipynb) | Preparation walkthrough, text coverage and date/text review checks |
-| [notebooks/topic_analysis.ipynb](notebooks/topic_analysis.ipynb) | Topic models, figures and provision-level case review |
+| [notebooks/03_topic_analysis.ipynb](notebooks/03_topic_analysis.ipynb) | Topic models, figures and provision-level case review |
 | [src/topic_analysis.py](src/topic_analysis.py) | Helpers used by the topic notebook |
 | [tests/](tests/) | Checks for the topic analysis and its saved results |
 | [requirements.txt](requirements.txt) | Packages used by the committed script and notebooks |

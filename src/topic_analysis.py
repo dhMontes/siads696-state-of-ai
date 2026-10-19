@@ -1,6 +1,6 @@
 """Summary-only exploratory topic analysis; metadata is used after fitting.
 
-Run notebooks/topic_analysis.ipynb for the analysis and interpretation.
+Run notebooks/03_topic_analysis.ipynb for the analysis and interpretation.
 Source-row identifiers follow prepare.py (one-based record positions).
 """
 from pathlib import Path
