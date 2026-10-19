@@ -361,7 +361,6 @@ def case_evidence(work, case_specs, bundles, out):
             locators.append({"section": passage["section"], "start_char": start, "end_char_exclusive": end})
         item["evidence"] = "\n\n[Next passage]\n\n".join(evidence)
         item["evidence_locations_json"] = json.dumps(locators)
-        item["reviewer"] = "Stored-text review; independent validation pending"
         item["version_scope"] = "Stored corpus text only; not a verification of current law"
         records.append(item)
     cases = pd.DataFrame(records)
@@ -531,8 +530,7 @@ def model_review_notes(comparison):
                       if r.topics == 8 and r.seed == 42 else
                       "Sensitivity comparison; larger k alone does not establish a better substantive model.")
         rows.append({"run_id": r.run_id, "content_assessment": finding,
-                     "review_coverage": coverage, "selection_reason": reason,
-                     "independent_human_validation": False})
+                     "review_coverage": coverage, "selection_reason": reason})
     return pd.DataFrame(rows)
 
 
