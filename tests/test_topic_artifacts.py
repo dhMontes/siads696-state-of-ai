@@ -138,6 +138,28 @@ class TopicArtifactTests(unittest.TestCase):
         self.assertEqual(audit["unique_summaries"], self.common.NCSL_Summary_clean.nunique())
         self.assertEqual(audit["original_records"], len(self.common))
 
+    def test_state_and_cohort_mean_shares_reconstruct_from_record_shares(self):
+        years = pd.to_datetime(self.common.introduction_date_iso, format="%Y-%m-%d").dt.year
+        for prefix in ["baseline", "refined"]:
+            records = pd.read_csv(OUT / f"{prefix}_document_topics.csv", dtype={"source_row": str})
+            records["introduction_year"] = records.source_row.map(years)
+            shares = records.filter(regex=r"^topic_\d+_share$")
+            assigned = shares.sum(axis=1).gt(0)
+            for name, key in [("state", "Jurisdiction"), ("cohort", "introduction_year")]:
+                saved = pd.read_csv(OUT / f"{prefix}_{name}_mean_topic_shares.csv", index_col=0)
+                expected = shares[assigned].groupby(records.loc[assigned, key]).mean()
+                np.testing.assert_allclose(saved.filter(like="_mean_share").to_numpy(), expected.to_numpy())
+                self.assertEqual(saved.records.tolist(), records.groupby(key).size().tolist())
+                self.assertEqual(int(saved.records.sum()), len(self.common))
+
+    def test_k_selection_tables_cover_each_count_with_five_starts(self):
+        for variant in ["baseline", "refined"]:
+            table = pd.read_csv(OUT / f"{variant}_k_selection.csv")
+            self.assertEqual(table.topics.tolist(), [5, 6, 7, 8, 9, 10, 12])
+            self.assertTrue(table.starts.eq(5).all())
+        picks = json.loads((OUT / "run_metadata.json").read_text())["k_selection_rule_picks"]
+        self.assertEqual(set(picks), {"Baseline", "Refined"})
+
     def test_manifest_matches_current_source_code_and_review_files(self):
         metadata = json.loads((OUT / "run_metadata.json").read_text())
         paths = {"raw_sha256": "data/raw/Final_Database.csv",

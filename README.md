@@ -98,24 +98,43 @@ to `outputs/topic_analysis/` (ignored by Git). The notebook includes executed
 outputs. To re-execute and export an HTML copy from the repository root:
 
 ```shell
-python -m jupyter nbconvert --to notebook --execute --inplace notebooks/03_topic_analysis.ipynb --ExecutePreprocessor.timeout=300
-python -m jupyter nbconvert --to html notebooks/03_topic_analysis.ipynb --output-dir outputs/topic_analysis
+python src/execute_notebook.py notebooks/03_topic_analysis.ipynb --html outputs/topic_analysis/03_topic_analysis.html
 ```
 
-Key outputs are `baseline_topic_summary.csv`, `baseline_representative_bills.csv`
-(eight topics times five records), `refined_topic_summary.csv`,
-`refined_topic_category_heatmap.png`, `refined_state_topic_counts.png`,
-`refined_state_topic_proportions.png`, `model_comparison.csv`, `case_analysis.csv`,
-and `case_stability_summary.csv`. Baseline versions of the category and state
-tables/figures are also saved. The legal-word refinement is documented separately
-from the exact requested baseline. `INCLUDE_LDA` in the notebook controls the
-secondary LDA comparison; NMF remains the main analysis.
+The full run takes about one minute. Key outputs, with baseline versions also saved
+for each refined table or figure:
+
+| Question | Files in `outputs/topic_analysis/` |
+| --- | --- |
+| What are the topics? | `refined_topic_summary.csv`, `refined_leading_words.png`, `refined_representative_bills.csv` (eight topics times five records) |
+| How many topics? | `k_selection.png`, `baseline_k_selection.csv`, `refined_k_selection.csv`, `model_comparison.csv` |
+| How do states differ? | `refined_state_mean_topic_shares.png` (proposal rule: mean normalized weights with counts), `refined_state_topic_proportions.png` (dominant topic) |
+| How do introduction cohorts differ? | `refined_cohort_mean_topic_shares.png` and `.csv` |
+| How do topics relate to source categories? | `refined_topic_category_heatmap.png` |
+| Which provisions connect bills? | `case_analysis.csv`, `case_stability_summary.csv`, `collapsed_duplicate_runs.csv` |
+
+The legal-word refinement is documented separately from the exact requested
+baseline. `INCLUDE_LDA` in the notebook controls the secondary LDA comparison;
+NMF remains the main analysis.
+
+**Topic count.** The reviewed models use k=8. The notebook's topic-count check
+fits each k from 5 to 12 from five starts and applies a stated rule (best
+matched-topic stability among counts within 0.01 of the best mean NPMI). It
+favors k=9 for the baseline and k=10 for the refined variant at every tolerance
+from 0.005 to 0.03. Refined k=10 restores a standalone task-force topic and
+isolates ceremonial commendations. The rule was written after the k=8 review,
+so adopting another count requires re-reviewing labels and case references.
+
+**Cohorts** use the year of `introduction_date_iso`, as in notebook 02. Early
+cohorts are small, and 2026 runs only to 2026-04-02.
 
 The cases suggest shared human-oversight requirements across employment and
 health coverage, related assessment/notice provisions in housing and lending,
 and study/reporting institutions across workforce, education and justice.
-The selected pair relationships persist across the tested NMF settings, but LDA
-does not reproduce all of them. These are purposive, version-specific findings;
+The selected pair relationships persist across all 12 distinct NMF solutions,
+but LDA does not reproduce all of them. Runs that converge to practically the
+same solution (assignment ARI >= 0.99 within one method, variant and k) are
+counted once. These are purposive, version-specific findings;
 they are not current-law assertions or prevalence estimates. State counts and
 proportions describe source coverage, not how much a state values a policy.
 NMF factor scaling also affects dominant-topic counts. The notebook now compares
@@ -131,7 +150,9 @@ python -m unittest discover -s tests -v
 
 The regression checks cover category parsing, zero-vector records, denominators,
 source/preparation integrity, the LDA-off report, factor-scaling invariance,
-representative rankings, original evidence spans, and saved-table consistency.
+representative rankings, original evidence spans, saved-table consistency,
+mean-share reconstruction for states and cohorts, the topic-count rule, and
+duplicate-solution collapsing.
 
 ## Prepared data
 
@@ -146,7 +167,7 @@ The current output has 2,567 records and 45 columns: 29 source fields, eight tex
 | Sponsor Party counts, proportions totals| 7| Engineered features from Sponsor Party to best utilize available data.|
 |Bipartisan Support|1|Flag for bills that are sponsored with members of both major parties derived from Sponsor Party counts.|
 
-Shared preparation currently checks column order but has its original-value assertions disabled. The topic intake independently verifies retained source values and order using `source_row`, comparing `Sponsor_Party` as parsed lists because preparation rewrites its quoting. These columns are a shared working table, not a prescribed list of
+Shared preparation verifies that every retained record keeps its original values (including the `Sponsor_Party` text) and `source_row`; sponsor counts are computed from a parsed copy. The topic intake independently repeats these checks against the raw snapshot and confirms each removed record duplicates a retained cleaned full text. These columns are a shared working table, not a prescribed list of
 model inputs. `source_row` is a source locator, not a model feature or a unique-bill
 identifier.
 
@@ -174,8 +195,10 @@ Blank cells remain empty strings.
 | [src/prepare.py](src/prepare.py) | Reusable shared preparation |
 | [notebooks/00_source_inspection.ipynb](notebooks/00_source_inspection.ipynb) | Initial raw-data preview and schema inspection |
 | [notebooks/01_data_preparation.ipynb](notebooks/01_data_preparation.ipynb) | Preparation walkthrough, text coverage and date/text review checks |
+| [notebooks/02_data_split_exploration.ipynb](notebooks/02_data_split_exploration.ipynb) | Duplicate review, target classes and the introduction-year train/validation/test split |
 | [notebooks/03_topic_analysis.ipynb](notebooks/03_topic_analysis.ipynb) | Executed summary-only topic analysis, plots and provision-level case review |
 | [src/topic_analysis.py](src/topic_analysis.py) | Reusable fitting, diagnostic, category parsing, export and evidence-check helpers |
+| [src/execute_notebook.py](src/execute_notebook.py) | Re-execute a notebook with progress output and export HTML |
 | [notebooks/topic_labels.json](notebooks/topic_labels.json) | Post-fit topic names, interpretations and review limitations |
 | [notebooks/topic_case_review.json](notebooks/topic_case_review.json) | Eight purposive cases, exact text anchors, provision differences and pair definitions |
 | [tests/](tests/) | Regression checks and independent saved-artifact audits |

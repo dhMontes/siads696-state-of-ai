@@ -10,10 +10,40 @@ from src.prepare import TEXT_COLUMNS, clean_text
 from src.topic_analysis import (
     GEO_PATTERN, dominant_topics, distributions, split_categories,
     stability_report, unit_mass_weights, validate_intake, check_topic_identity, supervised_split,
+    mean_topic_shares, recommend_k, introduction_years, distinct_solutions,
 )
 
 
 class TopicAnalysisTests(unittest.TestCase):
+    def test_duplicate_solutions_are_counted_once_within_the_same_k(self):
+        same = np.array([[1., 0.], [0., 1.], [1., 0.], [0., 1.]])
+        other = np.array([[1., 0.], [1., 0.], [0., 1.], [0., 1.]])
+        bundles = {"nmf_baseline_k2_seed42_nndsvda": {"W": same},
+                   "nmf_baseline_k2_seed7_nndsvda": {"W": same * 3},
+                   "nmf_baseline_k2_seed7_random": {"W": other},
+                   "nmf_baseline_k3_seed42_nndsvda": {"W": same}}
+        kept, collapsed = distinct_solutions(bundles)
+        self.assertEqual(list(kept), ["nmf_baseline_k2_seed42_nndsvda", "nmf_baseline_k2_seed7_random",
+                                      "nmf_baseline_k3_seed42_nndsvda"])
+        self.assertEqual(collapsed.to_dict("records")[0]["duplicate_of"], "nmf_baseline_k2_seed42_nndsvda")
+    def test_mean_shares_average_normalized_weights_and_skip_zero_rows(self):
+        W = np.array([[1., 3.], [0., 0.], [2., 2.], [0., 5.]])
+        means, counts = mean_topic_shares(W, pd.Series(["A", "A", "B", "B"], name="Jurisdiction"))
+        np.testing.assert_allclose(means.loc["A"], [.25, .75])
+        np.testing.assert_allclose(means.loc["B"], [.25, .75])
+        self.assertEqual(counts.records.tolist(), [2, 2])
+        self.assertEqual(counts.assigned_records.tolist(), [1, 2])
+
+    def test_cohorts_use_introduction_dates_not_ncsl_year(self):
+        work = pd.DataFrame({"Year": ["2025", "2025", "2026"],
+                             "introduction_date_iso": ["2024-12-31", "", "2026-04-02"]})
+        self.assertEqual(introduction_years(work).tolist(), [2024, pd.NA, 2026])
+
+    def test_k_rule_prefers_stability_within_npmi_tolerance(self):
+        table = pd.DataFrame({"topics": [8, 9, 10, 12], "npmi_mean": [.225, .232, .231, .200],
+                              "matched_cosine_mean": [.868, .851, .921, .990]})
+        self.assertEqual(recommend_k(table), 10)
+        self.assertEqual(recommend_k(table.assign(matched_cosine_mean=.9)), 8)
     def test_supervised_split_uses_introduction_dates_when_ncsl_year_disagrees(self):
         work = pd.DataFrame({"Year": ["2025", "2025", "2026", "2026"],
             "introduction_date_iso": ["2024-12-31", "2026-01-01", "2025-12-31", "2026-01-01"]},

@@ -322,11 +322,11 @@ def distributions(work, W, out, prefix="baseline"):
     return state, state_share, category_counts, category_proportions
 
 
-def heatmap(frame, title, path, percent=False, size=None):
+def heatmap(frame, title, path, percent=False, size=None, vmax=None):
     fig, ax = plt.subplots(figsize=size or (13, max(5, .28 * len(frame))))
     values = frame.to_numpy() * (100 if percent else 1)
     im = ax.imshow(values, aspect="auto", cmap="Blues", vmin=0,
-                   vmax=100 if percent else None)
+                   vmax=vmax if vmax is not None else (100 if percent else None))
     ax.set_xticks(range(frame.shape[1]), [str(c) for c in frame.columns], rotation=60, ha="right")
     ax.set_yticks(range(frame.shape[0]), [str(i) for i in frame.index])
     ax.set_title(title, loc="left", pad=16)
@@ -375,6 +375,26 @@ def case_evidence(work, case_specs, bundles, out):
     cases.to_csv(out / "case_analysis.csv", index=False)
     pd.DataFrame(assignments).to_csv(out / "case_assignments_all_runs.csv", index=False)
     return cases
+
+
+def distinct_solutions(bundles, threshold=.99):
+    """Collapse runs that reach practically the same solution, so tallies count evidence, not settings.
+
+    Within one method/variant/k, a run is a duplicate when its dominant-topic
+    assignments match an earlier kept run with ARI >= `threshold`. NNDSVDa uses
+    the seed only in its randomized SVD, so different seeds can converge together.
+    """
+    kept, duplicates = {}, []
+    for name, bundle in bundles.items():
+        group = name.split("_seed")[0]
+        for other in [k for k in kept if k.split("_seed")[0] == group]:
+            ari = adjusted_rand_score(dominant_topics(kept[other]["W"]), dominant_topics(bundle["W"]))
+            if ari >= threshold:
+                duplicates.append({"run_id": name, "duplicate_of": other, "assignment_ari": float(ari)})
+                break
+        else:
+            kept[name] = bundle
+    return kept, pd.DataFrame(duplicates, columns=["run_id", "duplicate_of", "assignment_ari"])
 
 
 def pair_stability(work, bundles, pair_specs, out):
@@ -607,3 +627,142 @@ def sponsor_tables(work, bundle, out, prefix):
         observed_democrat_ratios=("Democrat_Sponsor_Ratio", "count"),
         mean_democrat_ratio=("Democrat_Sponsor_Ratio", "mean"),
         median_democrat_ratio=("Democrat_Sponsor_Ratio", "median")).to_csv(out / f"{prefix}_topic_sponsor_summary.csv")
+
+
+def introduction_years(work):
+    """Introduction cohort, matching notebook 02 and supervised_split (never NCSL Year)."""
+    dates = pd.to_datetime(work["introduction_date_iso"], format="%Y-%m-%d", errors="coerce")
+    return dates.dt.year.astype("Int64").rename("introduction_year")
+
+
+def mean_topic_shares(W, groups):
+    """Proposal heatmap rule: average row-normalized weights within each group.
+
+    Zero-vector records have no share: they stay in `records` but are excluded
+    from the means, so every group's mean shares sum to one.
+    """
+    groups = pd.Series(np.asarray(groups, dtype=object), name=getattr(groups, "name", None))
+    sums = W.sum(axis=1)
+    assigned = sums > 0
+    shares = pd.DataFrame(W[assigned] / sums[assigned, None], columns=range(W.shape[1]))
+    order = sorted(groups.dropna().unique())
+    means = shares.groupby(groups[assigned].to_numpy()).mean().reindex(order)
+    means.index.name = groups.name
+    counts = pd.DataFrame({"records": groups.value_counts(),
+                           "assigned_records": groups[assigned].value_counts()}).reindex(order)
+    return means, counts.fillna(0).astype(int)
+
+
+def group_share_tables(work, W, out, prefix):
+    """Save state and introduction-cohort mean shares with their record counts."""
+    tables = {}
+    for name, groups in [("state", work.Jurisdiction), ("cohort", introduction_years(work))]:
+        means, counts = mean_topic_shares(W, groups)
+        counts.join(means.add_prefix("topic_").rename(columns=lambda c: f"{c}_mean_share")).to_csv(
+            out / f"{prefix}_{name}_mean_topic_shares.csv")
+        tables[name] = (means, counts)
+    return tables
+
+
+def leading_word_chart(model, vectorizer, names, title, path, n=12):
+    """Small multiples of each topic's top terms; one hue because bars share one meaning."""
+    import textwrap
+    terms = vectorizer.get_feature_names_out()
+    k, cols = model.n_components, 4
+    fig, axes = plt.subplots(int(np.ceil(k / cols)), cols, figsize=(4.4 * cols, 3.7 * np.ceil(k / cols)),
+                             squeeze=False)
+    for t, ax in enumerate(axes.flat):
+        if t >= k:
+            ax.axis("off")
+            continue
+        top = np.argsort(-model.components_[t], kind="stable")[:n]
+        ax.barh(np.arange(n), model.components_[t][top], height=.7, color="#2a78d6")
+        ax.set_yticks(np.arange(n), terms[top], fontsize=8)
+        ax.invert_yaxis()
+        ax.set_title("\n".join(textwrap.wrap(f"T{t}: {names[t]}", 38)), loc="left", fontsize=9.5)
+        ax.tick_params(axis="x", labelsize=7, colors="#52514e")
+        for side in ["top", "right"]:
+            ax.spines[side].set_visible(False)
+    fig.suptitle(title, x=.01, ha="left", fontsize=12)
+    fig.supxlabel("NMF component weight (relative within topic; not a probability)", fontsize=9, color="#52514e")
+    fig.tight_layout()
+    fig.savefig(path, dpi=160, bbox_inches="tight")
+    return fig
+
+
+def k_selection(work, out, variant="baseline", prefix=None, ks=(5, 6, 7, 8, 9, 10, 12), seeds=(7, 21, 99, 123)):
+    """Coherence and multi-start stability for each topic count.
+
+    NNDSVDa uses the seed only in its randomized SVD, so its seeds can converge to
+    the same solution; stability compares the NNDSVDa fit with random starts.
+    Topics are matched by component alignment, never by topic number.
+    """
+    vectorizer, X = features(work[TEXT], variant)
+    rows = []
+    for k in ks:
+        fits = [fit_model(X, "NMF", k, 42, "nndsvda")] + [fit_model(X, "NMF", k, s, "random") for s in seeds]
+        bundles = [dict(model=m, W=W, vectorizer=vectorizer) for m, W, _, _ in fits]
+        metrics = [topic_metrics(X, b["model"]) for b in bundles]
+        pairs = list(combinations(bundles, 2))
+        aligned = [[r["component_cosine"] for r in align_topics(a, b)] for a, b in pairs]
+        npmi = [m["document_npmi_top12"] for m in metrics]
+        rows.append({"variant": variant, "topics": k, "starts": len(bundles),
+            "npmi_mean": float(np.mean(npmi)), "npmi_sd": float(np.std(npmi)), "npmi_nndsvda": npmi[0],
+            "term_diversity_mean": float(np.mean([m["top12_term_diversity"] for m in metrics])),
+            "pairwise_ari_mean": float(np.mean([adjusted_rand_score(dominant_topics(a["W"]), dominant_topics(b["W"]))
+                                                for a, b in pairs])),
+            "matched_cosine_mean": float(np.mean([np.mean(c) for c in aligned])),
+            "weakest_matched_cosine_mean": float(np.mean([min(c) for c in aligned])),
+            "convergence_warnings": sum(len(f[3]) for f in fits)})
+    table = pd.DataFrame(rows)
+    table.to_csv(out / f"{prefix or variant}_k_selection.csv", index=False)
+    return table
+
+
+def new_topics_versus(reference, candidate, threshold=.8):
+    """Candidate topics whose best cosine match to any reference topic is below `threshold`.
+
+    Both bundles must share one vectorizer, so components are directly comparable.
+    """
+    similarity = cosine_similarity(candidate["model"].components_, reference["model"].components_)
+    terms = candidate["vectorizer"].get_feature_names_out()
+    dominant = dominant_topics(candidate["W"])
+    return pd.DataFrame([{"topic_id": t, "dominant_records": int((dominant == t).sum()),
+        "closest_reviewed_topic": int(similarity[t].argmax()), "closest_cosine": float(similarity[t].max()),
+        "top_terms": ", ".join(terms[np.argsort(-candidate["model"].components_[t], kind="stable")[:10]])}
+        for t in range(len(similarity)) if similarity[t].max() < threshold])
+
+
+def recommend_k(table, npmi_tolerance=0.01):
+    """Among counts within `npmi_tolerance` of the best mean NPMI, pick the highest
+    matched-component cosine; ties go to the smaller k."""
+    eligible = table.loc[table.npmi_mean.ge(table.npmi_mean.max() - npmi_tolerance)]
+    return int(eligible.sort_values(["matched_cosine_mean", "topics"], ascending=[False, True]).topics.iloc[0])
+
+
+def k_selection_chart(tables, reviewed_k, path):
+    """One row per variant; each panel has its own single-series axis (no dual axes)."""
+    panels = [("npmi_mean", "Mean NPMI (top 12)"), ("matched_cosine_mean", "Matched-topic cosine across starts"),
+              ("pairwise_ari_mean", "Assignment ARI across starts")]
+    fig, axes = plt.subplots(len(tables), len(panels), figsize=(14, 3.6 * len(tables)), squeeze=False)
+    for row, (label, table) in zip(axes, tables.items()):
+        chosen = recommend_k(table)
+        for ax, (column, name) in zip(row, panels):
+            ax.axvline(reviewed_k, color="#9a9890", lw=1, ls="--")
+            if column == "npmi_mean":
+                ax.errorbar(table.topics, table[column], yerr=table.npmi_sd, color="#2a78d6", lw=2,
+                            marker="o", ms=6, capsize=3)
+            else:
+                ax.plot(table.topics, table[column], color="#2a78d6", lw=2, marker="o", ms=6)
+            value = table.loc[table.topics.eq(chosen), column].item()
+            ax.plot([chosen], [value], marker="o", ms=11, mfc="none", mec="#0b0b0b", mew=1.5)
+            pick = f"; ring = rule pick k={chosen}" if column == "npmi_mean" else ""
+            ax.set_title(f"{label}: {name}{pick}", loc="left", fontsize=10)
+            ax.set_xticks(table.topics)
+            ax.tick_params(labelsize=8, colors="#52514e")
+            for side in ["top", "right"]:
+                ax.spines[side].set_visible(False)
+    fig.supxlabel(f"Number of topics (k); dashed line = reviewed k={reviewed_k}", fontsize=9, color="#52514e")
+    fig.tight_layout()
+    fig.savefig(path, dpi=160, bbox_inches="tight")
+    return fig
