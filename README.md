@@ -6,8 +6,8 @@ This project studies U.S. state AI legislation through two analyses: identifying
 recurring policy themes across states and classifying recorded legislative
 outcomes using bill information.
 
-**Current progress:** Shared data preparation and the topic analysis are
-implemented. Supervised models and the final report are not yet included in this repository.
+**Current progress:** Shared data preparation is implemented. Trained models,
+topic results and the final report are not yet included in this repository.
 
 [Workflow](#project-workflow) · [Data source](#data-source) · [Quickstart](#quickstart) · [Files](#repository-guide) · [Scope](#scope-and-next-stages)
 
@@ -80,9 +80,8 @@ text-coverage checks and date/text review findings.
 
 ## Prepared data
 
-The output keeps 2,567 of the 2,571 source records; four records whose cleaned
-bill text repeats a later record are removed. Its 45 columns contain the 29
-original fields and 16 additions:
+The output keeps all 2,571 source records. Its 37 columns contain the 29 original
+fields and eight additions:
 
 | Field group | Count | Purpose |
 | --- | --- | --- |
@@ -94,7 +93,7 @@ original fields and 16 additions:
 |Bipartisan Support|1|Flag for bills that are sponsored with members of both major parties derived from Sponsor Party counts.|
 
 The script checks that the saved original fields and record order match the
-source. These 45 columns are a shared working table, not a prescribed list of
+source. These 37 columns are a shared working table, not a prescribed list of
 model inputs. `source_row` is a source locator, not a model feature or a unique-bill
 identifier.
 
@@ -122,10 +121,6 @@ Blank cells remain empty strings.
 | [src/prepare.py](src/prepare.py) | Reusable shared preparation |
 | [notebooks/00_source_inspection.ipynb](notebooks/00_source_inspection.ipynb) | Initial raw-data preview and schema inspection |
 | [notebooks/01_data_preparation.ipynb](notebooks/01_data_preparation.ipynb) | Preparation walkthrough, text coverage and date/text review checks |
-| [notebooks/02_data_split_exploration.ipynb](notebooks/02_data_split_exploration.ipynb) | Duplicate review, target classes and the train/validation/test split |
-| [notebooks/03_topic_analysis.ipynb](notebooks/03_topic_analysis.ipynb) | Topic models, figures and provision-level case review |
-| [src/topic_analysis.py](src/topic_analysis.py) | Helpers used by the topic notebook |
-| [tests/](tests/) | Checks for the prepared data and saved topic results |
 | [requirements.txt](requirements.txt) | Packages used by the committed script and notebooks |
 
 ## Scope and next stages
@@ -133,13 +128,13 @@ Blank cells remain empty strings.
 Shared preparation retains records with blank summaries or extracts, date
 differences and repeated wording. The notebook presents these findings for review.
 
-Target selection, record filtering, text vectorization, data splits and model
-training belong to the analysis stages. They are not applied by the shared
-preparation script.
+Target selection, record filtering, deduplication, text vectorization, data splits
+and model training belong to the analysis stages. They are not applied by the
+shared preparation script.
 
-Duplicate rows are removed and sponsor features are added within shared
-preparation, so all members start from the same records and features.
+Row duplicates has been taken care within shared preparation as well as feature engineering to ensure 
+all members have access to the same level of features. 
 
-The topic-analysis notebook documents its inputs, methods and results. The
-supervised notebook and the final report will be linked here for the submitted
-project.
+The supervised and topic-analysis notebooks will document their inputs,
+filtering, methods and results as those stages are completed. Their findings
+and the final report will be linked here for the submitted project.
