@@ -155,7 +155,7 @@ class TopicArtifactTests(unittest.TestCase):
     def test_k_selection_tables_cover_each_count_with_five_starts(self):
         for variant in ["baseline", "refined"]:
             table = pd.read_csv(OUT / f"{variant}_k_selection.csv")
-            self.assertEqual(table.topics.tolist(), [5, 6, 7, 8, 9, 10, 12])
+            self.assertEqual(table.topics.tolist(), [5, 6, 7, 8, 9, 10, 11, 12])
             self.assertTrue(table.starts.eq(5).all())
         picks = json.loads((OUT / "run_metadata.json").read_text())["k_selection_rule_picks"]
         self.assertEqual(set(picks), {"Baseline", "Refined"})

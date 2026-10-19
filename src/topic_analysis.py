@@ -693,7 +693,7 @@ def leading_word_chart(model, vectorizer, names, title, path, n=12):
     return fig
 
 
-def k_selection(work, out, variant="baseline", prefix=None, ks=(5, 6, 7, 8, 9, 10, 12), seeds=(7, 21, 99, 123)):
+def k_selection(work, out, variant="baseline", prefix=None, ks=(5, 6, 7, 8, 9, 10, 11, 12), seeds=(7, 21, 99, 123)):
     """Coherence and multi-start stability for each topic count.
 
     NNDSVDa uses the seed only in its randomized SVD, so its seeds can converge to
