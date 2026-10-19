@@ -11,10 +11,29 @@ from src.topic_analysis import (
     GEO_PATTERN, dominant_topics, distributions, split_categories,
     stability_report, unit_mass_weights, validate_intake, check_topic_identity, supervised_split,
     mean_topic_shares, recommend_k, introduction_years, distinct_solutions,
+    recorded_outcomes, mantel_haenszel, wilson_interval,
 )
 
 
 class TopicAnalysisTests(unittest.TestCase):
+    def test_outcomes_map_status_and_flag_resolutions_and_memorials(self):
+        work = pd.DataFrame({"Bill_Status": ["Enacted", "Failed - Adjourned", "Pending - Carryover", "Vetoed",
+                                             "Adopted", "To Governor"],
+                             "Bill_Number": ["H 1", "SB 2", "HSB 3", "SCR 4", "HJM 5", "LD 6"]})
+        result = recorded_outcomes(work)
+        self.assertEqual(result.outcome.tolist(), ["passed", "failed", "unresolved", "failed", "passed", "unresolved"])
+        self.assertEqual(result.resolution.tolist(), [False, False, False, True, True, False])
+
+    def test_mantel_haenszel_pools_strata_and_skips_uninformative_ones(self):
+        # Two strata with odds ratio 16 each; a third stratum has no unexposed records.
+        exposed = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0] * 2 + [1, 1], dtype=bool)
+        y = np.array([1, 1, 1, 1, 0, 1, 0, 0, 0, 0] * 2 + [1, 0], dtype=bool)
+        strata = ["a"] * 10 + ["b"] * 10 + ["c"] * 2
+        ratio, p = mantel_haenszel(y, exposed, strata)
+        self.assertAlmostEqual(ratio, 16.0)
+        self.assertTrue(0 < p < 1)
+        low, high = wilson_interval(4, 5)
+        self.assertTrue(low < .8 < high)
     def test_duplicate_solutions_are_counted_once_within_the_same_k(self):
         same = np.array([[1., 0.], [0., 1.], [1., 0.], [0., 1.]])
         other = np.array([[1., 0.], [1., 0.], [0., 1.], [0., 1.]])

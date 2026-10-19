@@ -160,6 +160,25 @@ class TopicArtifactTests(unittest.TestCase):
         picks = json.loads((OUT / "run_metadata.json").read_text())["k_selection_rule_picks"]
         self.assertEqual(set(picks), {"Baseline", "Refined"})
 
+    def test_topic_outcomes_reconstruct_from_assignments_and_status(self):
+        from src.topic_analysis import recorded_outcomes
+        records = pd.read_csv(OUT / "refined_document_topics.csv", dtype={"source_row": str})
+        outcomes = recorded_outcomes(self.common.reset_index()).set_index(self.common.index)
+        records = records.join(outcomes, on="source_row")
+        bills = records.loc[records.outcome.ne("unresolved") & ~records.resolution & records.dominant_topic.ge(0)]
+        table = pd.read_csv(OUT / "refined_topic_outcomes.csv").set_index("topic_id")
+        for topic, group in bills.groupby("dominant_topic"):
+            self.assertEqual(table.loc[topic, "resolved_bills"], len(group))
+            self.assertEqual(table.loc[topic, "passed"], group.outcome.eq("passed").sum())
+
+    def test_bill_families_span_required_jurisdictions(self):
+        families = pd.read_csv(OUT / "bill_families.csv")
+        members = pd.read_csv(OUT / "bill_family_members.csv", dtype={"source_row": str})
+        self.assertTrue(families.jurisdictions.ge(4).all())
+        self.assertEqual(members.groupby("family").Jurisdiction.nunique().sort_index().tolist(),
+                         families.set_index("family").jurisdictions.sort_index().tolist())
+        self.assertTrue(members.source_row.isin(self.common.index).all())
+
     def test_manifest_matches_current_source_code_and_review_files(self):
         metadata = json.loads((OUT / "run_metadata.json").read_text())
         paths = {"raw_sha256": "data/raw/Final_Database.csv",

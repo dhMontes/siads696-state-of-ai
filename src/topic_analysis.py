@@ -16,6 +16,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.optimize import linear_sum_assignment
+from scipy.sparse import coo_matrix
+from scipy.sparse.csgraph import connected_components
+from scipy.stats import chi2, chi2_contingency
 from sklearn.decomposition import NMF, LatentDirichletAllocation
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer, ENGLISH_STOP_WORDS
@@ -766,3 +769,161 @@ def k_selection_chart(tables, reviewed_k, path):
     fig.tight_layout()
     fig.savefig(path, dpi=160, bbox_inches="tight")
     return fig
+
+
+def recorded_outcomes(work):
+    """Passed/failed/unresolved from Bill_Status, plus a resolution/memorial flag.
+
+    Enacted and Adopted count as passed; Failed and Vetoed as failed; Pending,
+    To Governor and Override Pending stay unresolved. Bill-number prefixes of two
+    or more letters ending in R or M (HR, SCR, HJM, ...) mark resolutions and
+    memorials, which the proposal excludes from outcome comparisons.
+    """
+    status = work.Bill_Status.str.split(" - ").str[0].str.strip()
+    outcome = np.select([status.isin(["Enacted", "Adopted"]), status.isin(["Failed", "Vetoed"])],
+                        ["passed", "failed"], "unresolved")
+    prefix = work.Bill_Number.str.upper().str.extract(r"^\s*([A-Z]+)")[0].fillna("")
+    resolution = prefix.str.len().ge(2) & prefix.str[-1].isin(["R", "M"])
+    return pd.DataFrame({"outcome": outcome, "resolution": resolution.to_numpy()}, index=work.index)
+
+
+def wilson_interval(k, n, z=1.96):
+    if n == 0:
+        return np.nan, np.nan
+    p, d = k / n, 1 + z * z / n
+    centre, half = (p + z * z / (2 * n)) / d, z * np.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d
+    return centre - half, centre + half
+
+
+def mantel_haenszel(y, exposed, strata):
+    """Pooled odds ratio across strata and the continuity-corrected CMH p-value.
+
+    Strata without both exposed and unexposed records carry no information and are skipped.
+    """
+    num = den = observed = expected = variance = 0.0
+    for _, idx in pd.Series(strata).groupby(pd.Series(strata).to_numpy()).groups.items():
+        e, o = np.asarray(exposed)[idx], np.asarray(y)[idx]
+        a, b, c, d = (e & o).sum(), (e & ~o).sum(), (~e & o).sum(), (~e & ~o).sum()
+        n = a + b + c + d
+        if n < 2 or a + b == 0 or c + d == 0:
+            continue
+        num, den = num + a * d / n, den + b * c / n
+        observed, expected = observed + a, expected + (a + b) * (a + c) / n
+        variance += (a + b) * (c + d) * (a + c) * (b + d) / (n * n * (n - 1))
+    ratio = num / den if den else np.inf
+    p = chi2.sf((abs(observed - expected) - .5) ** 2 / variance, 1) if variance else np.nan
+    return float(ratio), float(p)
+
+
+def outcome_by_topic(work, W, names, out, prefix):
+    """Post hoc, descriptive: recorded pass rates of resolved bills by dominant topic.
+
+    Each topic is compared with all other topics within introduction-year x
+    party-control strata, so year and partisan context are held fixed.
+    """
+    frame = recorded_outcomes(work).assign(topic=dominant_topics(W), year=introduction_years(work).to_numpy(),
+                                           control=work.State_Political_Control.to_numpy())
+    resolved = frame.outcome.ne("unresolved")
+    bills = frame.loc[resolved & ~frame.resolution & frame.topic.ge(0)]
+    passed = bills.outcome.eq("passed").to_numpy()
+    strata = (bills.year.astype(str) + "|" + bills.control).to_numpy()
+    early = bills.year.le(2024).to_numpy()
+    rows = []
+    for t in range(W.shape[1]):
+        member = bills.topic.eq(t).to_numpy()
+        k, n = int(passed[member].sum()), int(member.sum())
+        low, high = wilson_interval(k, n)
+        ratio, p = mantel_haenszel(passed, member, strata)
+        rows.append({"topic_id": t, "name": names[t], "resolved_bills": n, "passed": k,
+            "pass_rate": k / n if n else np.nan, "ci_low": low, "ci_high": high,
+            "bills_2019_2024": int((member & early).sum()),
+            "pass_rate_2019_2024": passed[member & early].mean() if (member & early).any() else np.nan,
+            "bills_2025_2026": int((member & ~early).sum()),
+            "pass_rate_2025_2026": passed[member & ~early].mean() if (member & ~early).any() else np.nan,
+            "stratified_odds_ratio_vs_other_topics": ratio, "cmh_p": p})
+    table = pd.DataFrame(rows).sort_values("pass_rate").reset_index(drop=True)
+    table.to_csv(out / f"{prefix}_topic_outcomes.csv", index=False)
+    audit = {"records": len(work), "resolved_records": int(resolved.sum()),
+             "resolutions_and_memorials_excluded": int((resolved & frame.resolution).sum()),
+             "resolved_bills": len(bills), "overall_pass_rate": float(passed.mean()),
+             "chi2_p_topic_by_outcome": float(chi2_contingency(pd.crosstab(bills.topic, passed))[1]),
+             "bonferroni_alpha": .05 / W.shape[1]}
+    return table, audit
+
+
+def outcome_chart(table, overall, title, path):
+    """Pass rate with Wilson 95% intervals per topic; one hue, overall rate as reference."""
+    fig, ax = plt.subplots(figsize=(10, .55 * len(table) + 1.4))
+    y = np.arange(len(table))
+    ax.errorbar(table.pass_rate * 100, y, xerr=[(table.pass_rate - table.ci_low) * 100,
+                (table.ci_high - table.pass_rate) * 100], fmt="o", ms=8, color="#2a78d6", ecolor="#2a78d6",
+                elinewidth=2, capsize=3)
+    ax.axvline(overall * 100, color="#9a9890", lw=1, ls="--")
+    ax.set_yticks(y, [f"T{r.topic_id}: {r.name} (n={r.resolved_bills})" for r in table.itertuples()], fontsize=9)
+    ax.set_xlabel(f"Recorded pass rate (%), 95% Wilson interval; dashed line = all resolved bills ({overall:.0%})",
+                  fontsize=9, color="#52514e")
+    ax.set_title(title, loc="left", fontsize=11)
+    for side in ["top", "right"]:
+        ax.spines[side].set_visible(False)
+    fig.tight_layout()
+    fig.savefig(path, dpi=160, bbox_inches="tight")
+    return fig
+
+
+def bill_families(work, W, names, out, threshold=.5, min_states=4, thresholds=(.5, .6, .7)):
+    """Post hoc: groups of near-identical full texts introduced in several states.
+
+    Full texts are compared with word 1-3-gram TF-IDF cosine. Bills from different
+    jurisdictions at or above `threshold` are linked; linked groups (single
+    linkage) spanning at least `min_states` jurisdictions are reported.
+    """
+    vectorizer = TfidfVectorizer(ngram_range=(1, 3), min_df=2, max_df=.5, sublinear_tf=True)
+    X = vectorizer.fit_transform(work.Bill_Text_clean)
+    S = (X @ X.T).tocoo()
+    states = work.Jurisdiction.to_numpy()
+    cross = (S.row < S.col) & (states[S.row] != states[S.col])
+
+    def families(t):
+        keep = cross & (S.data >= t)
+        graph = coo_matrix((S.data[keep], (S.row[keep], S.col[keep])), shape=S.shape)
+        labels = connected_components(graph, directed=False)[1]
+        spans = pd.Series(states).groupby(labels).nunique()
+        return labels, keep, spans[spans.ge(min_states)].index
+
+    sensitivity = []
+    for t in thresholds:
+        labels, keep, wide = families(t)
+        sensitivity.append({"threshold": t, "cross_state_pairs": int(keep.sum()), "families": len(wide),
+                            "bills_in_families": int(np.isin(labels, wide).sum())})
+    labels, keep, wide = families(threshold)
+    outcomes = recorded_outcomes(work)
+    members = work[["source_row", "Jurisdiction", "Bill_Number", "introduction_date_iso", "Bill_Title_clean"]].assign(
+        family=labels, topic=dominant_topics(W), outcome=outcomes.outcome.to_numpy(),
+        resolution=outcomes.resolution.to_numpy())
+    members = members.loc[members.family.isin(wide)]
+    edge_family = labels[S.row[keep]]
+    rows = []
+    for family, group in members.groupby("family"):
+        bills = group.loc[group.outcome.ne("unresolved") & ~group.resolution]
+        topic = group.topic.mode().iloc[0]
+        rows.append({"family": int(family), "bills": len(group), "jurisdictions": group.Jurisdiction.nunique(),
+            "states": ", ".join(sorted(group.Jurisdiction.unique())),
+            "first_introduced": group.introduction_date_iso.min(), "last_introduced": group.introduction_date_iso.max(),
+            "median_link_cosine": float(np.median(S.data[keep][edge_family == family])),
+            "dominant_topic": f"T{topic}: {names[topic]}" if topic >= 0 else "Unassigned",
+            "example_title": group.Bill_Title_clean.mode().iloc[0],
+            "resolved_bills": len(bills), "passed": int(bills.outcome.eq("passed").sum())})
+    table = pd.DataFrame(rows).sort_values(["jurisdictions", "bills"], ascending=False).reset_index(drop=True)
+    table.to_csv(out / "bill_families.csv", index=False)
+    members.drop(columns="Bill_Title_clean").to_csv(out / "bill_family_members.csv", index=False)
+    pd.DataFrame(sensitivity).to_csv(out / "bill_family_threshold_sensitivity.csv", index=False)
+    resolved = outcomes.outcome.ne("unresolved") & ~outcomes.resolution
+    in_family = work.source_row.isin(members.source_row).to_numpy()
+    passed = outcomes.outcome.eq("passed").to_numpy()
+    audit = {"threshold": threshold, "min_states": min_states, "families": len(table),
+             "bills_in_families": len(members),
+             "family_resolved_bills": int((resolved & in_family).sum()),
+             "family_pass_rate": float(passed[resolved & in_family].mean()),
+             "other_resolved_bills": int((resolved & ~in_family).sum()),
+             "other_pass_rate": float(passed[resolved & ~in_family].mean())}
+    return table, pd.DataFrame(sensitivity), audit
