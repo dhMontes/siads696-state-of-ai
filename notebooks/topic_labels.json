@@ -1,0 +1,367 @@
+{
+  "reviewer": "Codex-assisted reading of actual top terms and top-five summaries; independent human confirmation pending",
+  "baseline": [
+    {
+      "topic_id": 0,
+      "name": "Public administration and education (broad)",
+      "interpretation": "Education evaluations, AI guidance, public programs and government implementation. A mixed residual theme rather than one governance rule.",
+      "evidence_source_rows": "289;277;293;2448;418",
+      "review": "Moderate specificity; education department wording and paired Maryland records dominate the representatives.",
+      "expected_keywords": [
+        "ai",
+        "state",
+        "requires",
+        "department",
+        "education",
+        "certain",
+        "technology",
+        "establishes",
+        "school",
+        "public",
+        "program",
+        "board"
+      ]
+    },
+    {
+      "topic_id": 1,
+      "name": "Generic artificial-intelligence wording (weak)",
+      "interpretation": "Very short generic AI summaries occur beside commissions, elections and property advertising. Not a coherent governance finding.",
+      "evidence_source_rows": "2472;1491;1370;2474;2207",
+      "review": "Low specificity. Spelled-out artificial intelligence versus AI partly separates summaries by wording.",
+      "expected_keywords": [
+        "artificial intelligence",
+        "intelligence",
+        "artificial",
+        "use artificial",
+        "use",
+        "creates",
+        "intelligence systems",
+        "relates artificial",
+        "establishes",
+        "act",
+        "generative artificial",
+        "companion"
+      ]
+    },
+    {
+      "topic_id": 2,
+      "name": "Sexual exploitation and intimate imagery",
+      "interpretation": "Offenses involving child sexual abuse material and nonconsensual intimate images, including generated depictions.",
+      "evidence_source_rows": "1952;2131;376;1324;1123",
+      "review": "A recognizable issue family; includes different offenses and affected populations, not one identical prohibition.",
+      "expected_keywords": [
+        "provides",
+        "person",
+        "sexual",
+        "child",
+        "image",
+        "certain",
+        "act",
+        "individual",
+        "images",
+        "intimate",
+        "material",
+        "digital"
+      ]
+    },
+    {
+      "topic_id": 3,
+      "name": "Task forces, studies and reporting",
+      "interpretation": "Creates or amends task forces with membership, study responsibilities and reporting. Cross-domain institutional mechanism explored in the cases.",
+      "evidence_source_rows": "1456;1509;1835;1452;1510",
+      "review": "Strong institutional wording; four of five representatives are Illinois Future of Work variants. Case review deliberately uses distinct states.",
+      "expected_keywords": [
+        "task",
+        "task force",
+        "force",
+        "force provides",
+        "establishes",
+        "provides",
+        "establishes task",
+        "creates",
+        "recommendations",
+        "intelligence task",
+        "force shall",
+        "membership"
+      ]
+    },
+    {
+      "topic_id": 4,
+      "name": "Automated decisions and employment safeguards",
+      "interpretation": "Automated decision systems, employment decisions and discrimination. Additional high-weight records include housing, lending and coverage decisions.",
+      "evidence_source_rows": "1428;1520;1856;1062;2034",
+      "review": "Useful cross-domain lead, but short repeated NJ discrimination summaries do not establish specific requirements. Read operative provisions.",
+      "expected_keywords": [
+        "decision",
+        "automated",
+        "employment",
+        "automated decision",
+        "use",
+        "use automated",
+        "systems",
+        "making",
+        "tools",
+        "employment decision",
+        "decision systems",
+        "decision making"
+      ]
+    },
+    {
+      "topic_id": 5,
+      "name": "Relates-to summary formula (artifact)",
+      "interpretation": "Repeated relates and generic AI text groups divorce arbitration, crime, schools and broad AI measures.",
+      "evidence_source_rows": "1558;874;867;868;1567",
+      "review": "Reject as substantive policy topic. Motivates the documented four-word stoplist comparison.",
+      "expected_keywords": [
+        "relates",
+        "ai",
+        "relates ai",
+        "relates artificial",
+        "relates use",
+        "intelligence relates",
+        "use ai",
+        "use",
+        "chatbots",
+        "relates consumer",
+        "rental",
+        "chatbot"
+      ]
+    },
+    {
+      "topic_id": 6,
+      "name": "Health services, insurance and patient data",
+      "interpretation": "AI in care delivery and coverage, registries and health-data protections. Domain similarity can conceal different governance obligations.",
+      "evidence_source_rows": "24;280;295;1393;1493",
+      "review": "Health-specific vocabulary with mixed policy directions; no universal health-AI duty inferred.",
+      "expected_keywords": [
+        "health",
+        "care",
+        "health care",
+        "insurance",
+        "services",
+        "mental",
+        "mental health",
+        "health insurance",
+        "utilization",
+        "patient",
+        "use",
+        "prohibits"
+      ]
+    },
+    {
+      "topic_id": 7,
+      "name": "Synthetic media in political communications",
+      "interpretation": "Election-related synthetic media, disclosure, prohibited distribution and civil remedies.",
+      "evidence_source_rows": "688;694;1026;1329;1279",
+      "review": "Recognizable theme; notification and civil-remedy provisions differ and several Rhode Island records are related.",
+      "expected_keywords": [
+        "media",
+        "synthetic",
+        "synthetic media",
+        "deceptive",
+        "election",
+        "political",
+        "use synthetic",
+        "communications",
+        "candidate",
+        "social media",
+        "social",
+        "audio"
+      ]
+    }
+  ],
+  "legal": [
+    {
+      "topic_id": 0,
+      "name": "Generic artificial-intelligence wording (weak)",
+      "interpretation": "Spelled-out AI language still dominates short summaries. Removing four format words does not solve limited source detail.",
+      "review": "Low specificity; do not label as a common governance rule.",
+      "expected_keywords": [
+        "artificial intelligence",
+        "intelligence",
+        "artificial",
+        "use artificial",
+        "use",
+        "intelligence systems",
+        "creates",
+        "establishes",
+        "systems",
+        "companion",
+        "intelligence state",
+        "chatbots"
+      ],
+      "evidence_source_rows": "2472;2220;2474;1437;1491"
+    },
+    {
+      "topic_id": 1,
+      "name": "AI and generative-AI wording (weak)",
+      "interpretation": "Short AI-only summaries mix with generative-AI disclosure and deployment language.",
+      "review": "Wording-driven mixture; not a single governance mechanism.",
+      "expected_keywords": [
+        "ai",
+        "use ai",
+        "use",
+        "generative",
+        "generative ai",
+        "ai systems",
+        "requires",
+        "systems",
+        "disclosure",
+        "establishes",
+        "content",
+        "generated"
+      ],
+      "evidence_source_rows": "867;868;761;1018;640"
+    },
+    {
+      "topic_id": 2,
+      "name": "Synthetic media in political communications",
+      "interpretation": "Synthetic election media and disclosure/prohibition provisions.",
+      "review": "Recognizable theme preserved after removing format terms.",
+      "expected_keywords": [
+        "media",
+        "synthetic",
+        "synthetic media",
+        "election",
+        "deceptive",
+        "political",
+        "use synthetic",
+        "communications",
+        "candidate",
+        "social media",
+        "social",
+        "audio"
+      ],
+      "evidence_source_rows": "694;688;810;1026;1237"
+    },
+    {
+      "topic_id": 3,
+      "name": "State administration, education and study bodies (broad)",
+      "interpretation": "State and education vocabulary merges with task-force and reporting language. The former separate task-force cluster is no longer isolated.",
+      "review": "Highest-weight examples remain mostly Illinois task forces, but the larger cluster is heterogeneous; do not generalize the representatives to all members.",
+      "expected_keywords": [
+        "state",
+        "task",
+        "task force",
+        "force",
+        "education",
+        "department",
+        "requires",
+        "technology",
+        "establishes",
+        "school",
+        "public",
+        "board"
+      ],
+      "evidence_source_rows": "1456;1509;1452;1510;352"
+    },
+    {
+      "topic_id": 4,
+      "name": "Automated decisions across application domains",
+      "interpretation": "Employment, lending and other consequential decision tools; shared safeguards require provision-level comparison.",
+      "review": "Employment and lending representatives support case leads; provisions must be checked separately.",
+      "expected_keywords": [
+        "decision",
+        "automated",
+        "employment",
+        "automated decision",
+        "use automated",
+        "systems",
+        "making",
+        "tools",
+        "employment decision",
+        "use",
+        "decision making",
+        "decision systems"
+      ],
+      "evidence_source_rows": "2034;2051;1062;589;1856"
+    },
+    {
+      "topic_id": 5,
+      "name": "Sexual exploitation and intimate imagery",
+      "interpretation": "Child sexual abuse material and intimate-image offenses, including synthetic depictions.",
+      "review": "Coherent issue family, with distinctions between minors and adult nonconsensual imagery.",
+      "expected_keywords": [
+        "sexual",
+        "child",
+        "person",
+        "image",
+        "images",
+        "material",
+        "intimate",
+        "minor",
+        "offense",
+        "abuse",
+        "certain",
+        "criminal"
+      ],
+      "evidence_source_rows": "1952;376;1324;2457;2131"
+    },
+    {
+      "topic_id": 6,
+      "name": "Health services and coverage",
+      "interpretation": "Care delivery, insurance and health-related AI restrictions, registration and disclosure.",
+      "review": "Domain-coherent; requirements differ.",
+      "expected_keywords": [
+        "health",
+        "care",
+        "health care",
+        "insurance",
+        "services",
+        "mental",
+        "mental health",
+        "health insurance",
+        "certain",
+        "patient",
+        "utilization",
+        "provider"
+      ],
+      "evidence_source_rows": "24;280;295;1393;1493"
+    },
+    {
+      "topic_id": 7,
+      "name": "Algorithmic pricing and consumer restrictions",
+      "interpretation": "Top representatives prohibit algorithmic residential rent setting under unfair/deceptive practice rules.",
+      "review": "Top-five fit is strong but near-identical NY/CO summaries dominate. The larger topic also contains broader consumer provisions.",
+      "expected_keywords": [
+        "prohibits",
+        "algorithmic",
+        "consumer",
+        "pricing",
+        "residential",
+        "price",
+        "certain",
+        "prohibits use",
+        "data",
+        "use",
+        "rental",
+        "rent"
+      ],
+      "evidence_source_rows": "905;521;563;1047;1084"
+    }
+  ],
+  "reviewed_migration": {
+    "reference_model_sha256": "02116c4303a45f0ab7796e8de4fc78664841511c9808c849d3352e52653f5195",
+    "common_records_sha256": "7bbfaa4fce3160530ffad427fde4bd5e59fd56b0bedd6789a19b9fb7eb1c5929",
+    "baseline": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      6,
+      5,
+      7
+    ],
+    "refined": [
+      0,
+      1,
+      5,
+      3,
+      4,
+      6,
+      2,
+      7
+    ]
+  }
+}
