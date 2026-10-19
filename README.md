@@ -121,6 +121,8 @@ Blank cells remain empty strings.
 | [src/prepare.py](src/prepare.py) | Reusable shared preparation |
 | [notebooks/00_source_inspection.ipynb](notebooks/00_source_inspection.ipynb) | Initial raw-data preview and schema inspection |
 | [notebooks/01_data_preparation.ipynb](notebooks/01_data_preparation.ipynb) | Preparation walkthrough, text coverage and date/text review checks |
+| [notebooks/04_source_validation.ipynb](notebooks/04_source_validation.ipynb) | Offline 18-bill source validation and seven closed-session reviews |
+| [data/validation/README.md](data/validation/README.md) | Dated observations, comparison tables, field definitions and source attribution |
 | [requirements.txt](requirements.txt) | Packages used by the committed script and notebooks |
 
 ## Scope and next stages
