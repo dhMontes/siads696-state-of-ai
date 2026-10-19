@@ -105,31 +105,6 @@ class TopicArtifactTests(unittest.TestCase):
             self.assertEqual(row.runs, len(group))
             self.assertEqual(row.preserved_runs, preserved.sum())
 
-    def test_supervised_vocabulary_and_fit_population_are_train_only(self):
-        import joblib
-        from src.topic_analysis import features, TEXT
-        model = joblib.load(OUT / "supervised_topic_model.joblib")
-        table = pd.read_csv(OUT / "supervised_topic_features.csv", dtype={"source_row": str})
-        years = pd.to_datetime(self.common.introduction_date_iso, format="%Y-%m-%d").dt.year
-        train = self.common.loc[years.between(2019, 2024)]
-        self.assertEqual(model["train_source_rows"], train.index.tolist())
-        self.assertEqual(table.source_row.tolist(), self.common.index.tolist())
-        expected_split = np.select([years.between(2019, 2024), years.eq(2025), years.eq(2026)],
-                                   ["train", "validation", "test"], default="excluded")
-        np.testing.assert_array_equal(table.split, expected_split)
-        self.assertEqual(table.introduction_date_iso.tolist(), self.common.introduction_date_iso.tolist())
-        meta = json.loads((OUT / "supervised_metadata.json").read_text())
-        self.assertEqual(meta["split_date_column"], "introduction_date_iso")
-        self.assertEqual(meta["excluded_source_rows"], self.common.index[expected_split == "excluded"].tolist())
-        self.assertEqual(meta["split_counts"], table.split.value_counts().to_dict())
-        expected, _ = features(train[TEXT])
-        self.assertEqual(expected.vocabulary_, model["vectorizer"].vocabulary_)
-        np.testing.assert_allclose(expected.idf_, model["vectorizer"].idf_)
-        self.assertTrue(table.loc[table.introduction_year.eq(2025), "split"].eq("validation").all())
-        self.assertTrue(table.loc[table.introduction_year.eq(2026), "split"].eq("test").all())
-        weights = model["model"].transform(model["vectorizer"].transform(self.common[TEXT]))
-        np.testing.assert_allclose(weights, table.filter(regex="^train_nmf_topic_").to_numpy())
-
     def test_sponsor_counts_and_summary_dedup_population(self):
         counts = pd.read_csv(OUT / "baseline_topic_sponsor_summary.csv")
         self.assertEqual(counts.records.sum(), len(self.common))

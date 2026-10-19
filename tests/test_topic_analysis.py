@@ -9,7 +9,7 @@ import pandas as pd
 from src.prepare import TEXT_COLUMNS, clean_text
 from src.topic_analysis import (
     GEO_PATTERN, dominant_topics, distributions, split_categories,
-    stability_report, unit_mass_weights, validate_intake, check_topic_identity, supervised_split,
+    stability_report, unit_mass_weights, validate_intake, check_topic_identity,
     mean_topic_shares, recommend_k, introduction_years, distinct_solutions,
     recorded_outcomes, mantel_haenszel, wilson_interval,
 )
@@ -34,6 +34,7 @@ class TopicAnalysisTests(unittest.TestCase):
         self.assertTrue(0 < p < 1)
         low, high = wilson_interval(4, 5)
         self.assertTrue(low < .8 < high)
+
     def test_duplicate_solutions_are_counted_once_within_the_same_k(self):
         same = np.array([[1., 0.], [0., 1.], [1., 0.], [0., 1.]])
         other = np.array([[1., 0.], [1., 0.], [0., 1.], [0., 1.]])
@@ -45,6 +46,7 @@ class TopicAnalysisTests(unittest.TestCase):
         self.assertEqual(list(kept), ["nmf_baseline_k2_seed42_nndsvda", "nmf_baseline_k2_seed7_random",
                                       "nmf_baseline_k3_seed42_nndsvda"])
         self.assertEqual(collapsed.to_dict("records")[0]["duplicate_of"], "nmf_baseline_k2_seed42_nndsvda")
+
     def test_mean_shares_average_normalized_weights_and_skip_zero_rows(self):
         W = np.array([[1., 3.], [0., 0.], [2., 2.], [0., 5.]])
         means, counts = mean_topic_shares(W, pd.Series(["A", "A", "B", "B"], name="Jurisdiction"))
@@ -63,19 +65,6 @@ class TopicAnalysisTests(unittest.TestCase):
                               "matched_cosine_mean": [.868, .851, .921, .990]})
         self.assertEqual(recommend_k(table), 10)
         self.assertEqual(recommend_k(table.assign(matched_cosine_mean=.9)), 8)
-    def test_supervised_split_uses_introduction_dates_when_ncsl_year_disagrees(self):
-        work = pd.DataFrame({"Year": ["2025", "2025", "2026", "2026"],
-            "introduction_date_iso": ["2024-12-31", "2026-01-01", "2025-12-31", "2026-01-01"]},
-            index=[11, 22, 33, 44])
-        result = supervised_split(work)
-        self.assertEqual(result.tolist(), ["train", "test", "validation", "test"])
-        self.assertEqual(result.index.tolist(), work.index.tolist())
-
-    def test_supervised_split_excludes_unusable_dates(self):
-        for date in ["", None, "not-a-date", "2025-02-30", "2018-12-31", "2027-01-01"]:
-            with self.subTest(date=date):
-                result = supervised_split(pd.DataFrame({"Year": ["2024"], "introduction_date_iso": [date]}))
-                self.assertEqual(result.tolist(), ["excluded"])
 
     def test_multilabel_separators_deduplication_and_slashes(self):
         self.assertEqual(split_categories(

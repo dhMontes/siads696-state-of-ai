@@ -552,46 +552,8 @@ def check_topic_identity(candidate, labels, reference=None, reviewed_mapping=Non
     return alignment
 
 
-def supervised_split(work):
-    """Match notebook 02's introduction-year split; never substitute NCSL Year."""
-    dates = pd.to_datetime(work["introduction_date_iso"], format="%Y-%m-%d", errors="coerce")
-    years = dates.dt.year
-    split = pd.Series("excluded", index=work.index, name="split")
-    split.loc[years.between(2019, 2024)] = "train"
-    split.loc[years.eq(2025)] = "validation"
-    split.loc[years.eq(2026)] = "test"
-    return split
-
-
-def supplementary_analysis(work, baseline, out):
-    """Train-only supervised features and post-fit descriptive sensitivities."""
-    import joblib
-    split = supervised_split(work)
-    train = split.eq("train")
-    v, X = features(work.loc[train, TEXT])
-    m, _, _, messages = fit_model(X)
-    all_X = v.transform(work[TEXT])
-    with threadpool_limits(limits=2):
-        W = m.transform(all_X)
-    W[all_X.getnnz(axis=1) == 0] = 0
-    output = work[IDENTIFIERS + ["introduction_date_iso"]].copy()
-    output["introduction_year"] = pd.to_datetime(work.introduction_date_iso, format="%Y-%m-%d", errors="coerce").dt.year.astype("Int64")
-    output["split"] = split
-    for t in range(W.shape[1]):
-        output[f"train_nmf_topic_{t}_raw"] = W[:, t]
-    output["dominant_topic"] = dominant_topics(W)
-    output.to_csv(out / "supervised_topic_features.csv", index=False)
-    joblib.dump(dict(vectorizer=v, model=m, train_source_rows=work.loc[train, "source_row"].tolist()),
-                out / "supervised_topic_model.joblib")
-    meta = {"split_date_column": "introduction_date_iso",
-            "split_reference": "notebooks/02_data_split_exploration.ipynb: Intro_Year",
-            "fit_years": [2019, 2024], "validation_year": 2025, "test_year": 2026,
-            "split_counts": split.value_counts().to_dict(),
-            "excluded_source_rows": work.loc[split.eq("excluded"), "source_row"].tolist(),
-            "excluded_policy": "Missing/invalid dates and introduction years outside 2019-2026 are transformed but excluded from supervised partitions, matching notebook 02", "input_column": TEXT,
-            "warnings": messages, "topic_ids": "Independent train-only model; descriptive labels do not apply",
-            "scope": "Temporal fit isolation only; repeated summaries across years may remain"}
-    (out / "supervised_metadata.json").write_text(json.dumps(meta, indent=2))
+def summary_dedup_sensitivity(work, baseline, out):
+    """Refit on unique cleaned summaries and compare assignments on the full population."""
     unique = work.drop_duplicates(TEXT, keep="first").reset_index(drop=True)
     v, X = features(unique[TEXT]); m, _, _, _ = fit_model(X)
     candidate = dict(vectorizer=v, model=m)
@@ -614,7 +576,7 @@ def supplementary_analysis(work, baseline, out):
     topics, reps = topic_tables(unique, m, m.transform(X), v, "summary_deduplicated")
     topics.to_csv(out / "summary_dedup_topics.csv", index=False)
     reps.to_csv(out / "summary_dedup_representatives.csv", index=False)
-    return meta, sensitivity
+    return sensitivity
 
 
 def sponsor_tables(work, bundle, out, prefix):
@@ -631,7 +593,7 @@ def sponsor_tables(work, bundle, out, prefix):
 
 
 def introduction_years(work):
-    """Introduction cohort, matching notebook 02 and supervised_split (never NCSL Year)."""
+    """Introduction cohort from introduction_date_iso, as in notebook 02 (never NCSL Year)."""
     dates = pd.to_datetime(work["introduction_date_iso"], format="%Y-%m-%d", errors="coerce")
     return dates.dt.year.astype("Int64").rename("introduction_year")
 
