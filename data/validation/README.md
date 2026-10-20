@@ -16,6 +16,8 @@ or `notebooks/`, using the existing project dependencies.
 | [bill_status_observations.csv](bill_status_observations.csv) | Original October 13, 2026 official-source observations, with coverage limits and unresolved conflicts. Preserved unchanged. |
 | [legiscan_comparison.csv](legiscan_comparison.csv) | October 19, 2026 LegiScan identities, session identifiers, provider stages and available history actions for the same 18 records. |
 | [closed_session_review.csv](closed_session_review.csv) | October 19 official-history and closure review of seven intermediate-stage bills in closed sessions. |
+| [deduplication_review.csv](deduplication_review.csv) | Four removed-to-retained source row pairs from the current preparation run. |
+| [sponsor_review.csv](sponsor_review.csv) | October 19 official-source checks of the two duplicate pairs with different sponsor-party lists. |
 
 `source_row` is the one-based record position in `data/raw/Final_Database.csv`.
 The raw file has 2,571 records and 29 fields, with MD5
@@ -75,3 +77,36 @@ to use them.
   printed page 76 (PDF page 80). All seven official bill histories were directly
   retrieved October 19. The Texas FAQ was read through its official web result
   after a direct request returned 403; that route does not imply a direct HTTP read.
+
+## Duplicate and sponsor checks
+
+[deduplication_review.csv](deduplication_review.csv) maps four removed source
+records to the retained records. Each pair shares its encoded source bill
+identifier and cleaned bill text. This supports the four observed matches;
+identical text alone does not establish bill identity across the corpus.
+
+[sponsor_review.csv](sponsor_review.csv) checks the two pairs with conflicting
+party lists against official legislative sources:
+
+- California SCR 82: the original committee analysis names Niello as author,
+  but the retained record omits him and lists twelve other legislators.
+- Delaware SCR 18: the removed record names primary sponsor Richardson.
+  The retained six-name list differs from the inspected official sponsor list.
+
+Sponsor scope and collection time need reconciliation before interpreting these
+records' party features. The review does not replace source lists or alter
+the preparation script, generated sponsor features or model inputs.
+Official links, check times and coverage limits appear in the review table.
+
+## Snapshot and outcome cutoff options
+
+| Option | What stays comparable | Remaining decision |
+| --- | --- | --- |
+| Fixed source baseline | Use one preserved source snapshot and its recorded outcomes for initial comparisons. | State the snapshot and the analysis eligibility rules; a recorded outcome is not automatically a verified final outcome. |
+| Separate dated update experiment | Keep the baseline, and evaluate independently reviewed outcomes observed through one common date. | Agree the date, eligible population, terminal-outcome rule, treatment of unresolved/missing matches and compatible text versions before changing labels. |
+
+Keep the baseline fixed while the team chooses these rules. The 18-record pilot
+provides dated evidence, not a complete updated training target. Do not selectively
+overwrite only successfully matched records or combine later outcomes with
+unexamined later text. Record bill event dates separately from retrieval times.
+The supervised analysis owns the final target, eligibility and comparison design.
