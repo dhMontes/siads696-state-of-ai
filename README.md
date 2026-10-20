@@ -172,8 +172,8 @@ Blank cells remain empty strings.
   compares text, context and combined inputs for congressional enactment
   using chronological evaluation.
 - [Quinn and colleagues (2010)](https://doi.org/10.1111/j.1540-5907.2009.00427.x)
-  learn topics from Senate speeches and interpret political attention,
-  providing a comparison for substantive interpretation of our bill themes.
+  use topic modeling to study themes in U.S. Senate speeches. We use their
+  work as a comparison for our topic analysis of state AI bills.
 
 These studies concern different legislative populations and do not establish
 performance on our state AI corpus.
