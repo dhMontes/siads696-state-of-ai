@@ -1,9 +1,10 @@
 # Source validation
 
-These tables document a frozen 18-record diagnostic sample: six records each from
-California, Colorado and Texas. They keep source values, later observations and
-interpretations separate. They are not replacement training labels or a national
-error-rate estimate.
+These tables keep source values, later observations and interpretations
+separate. The original diagnostic sample contains 18 records: six each from
+California, Colorado and Texas. Two sponsor cases extend the API identity and
+text-version checks to 20 retained records. This convenience sample does not
+estimate national error rates or provide replacement training labels.
 
 Open [the source-validation notebook](../../notebooks/04_source_validation.ipynb)
 for the comparisons and interpretation. It runs offline from the repository root
@@ -18,6 +19,8 @@ or `notebooks/`, using the existing project dependencies.
 | [closed_session_review.csv](closed_session_review.csv) | October 19 official-history and closure review of seven intermediate-stage bills in closed sessions. |
 | [deduplication_review.csv](deduplication_review.csv) | Four removed-to-retained source row pairs from the current preparation run. |
 | [sponsor_review.csv](sponsor_review.csv) | October 19 official-source checks of the two duplicate pairs with different sponsor-party lists. |
+| [sponsor_resolution.csv](sponsor_resolution.csv) | Two current sponsor rosters reconciled with official sources, with historical text and role differences preserved. |
+| [text_version_review.csv](text_version_review.csv) | Version-reference checks for 20 records: 79 available references, 19 introduced references and one undated Delaware Draft. |
 
 `source_row` is the one-based record position in `data/raw/Final_Database.csv`.
 The raw file has 2,571 records and 29 fields, with MD5
@@ -27,7 +30,9 @@ feature. Bill identity also requires state and legislative session.
 
 ## Findings
 
-- All 18 sampled records match LegiScan state, bill and session identities.
+- All 18 original sampled records and both sponsor cases match LegiScan
+  state, bill and session identities. The union is 20 of 2,567 prepared
+  records; the remaining 2,547 have not been checked through these tables.
 - Seven bills have API Introduced or Engrossed stages in closed sessions. All
   seven source statuses already say `Failed - Adjourned`; no status correction
   or exclusion is justified by that stage distinction alone.
@@ -56,6 +61,9 @@ The CSVs retain primary links and check times so the evidence can be inspected.
 | `signing_or_chaptering_evidence` | Explicit signing or chaptering history exists in the API response; retained separately from its stage label. |
 | `*_checked_at_utc` | Retrieval/check time, separate from legislative event dates. |
 | `outcome_review` | Evidence-based interpretation for the seven reviewed cases. Texas's inferred basis is stated explicitly. |
+| `review_state`, `checked_at_utc` | Observation coverage and check time for one retained source row; a review state does not establish final model eligibility. |
+| `api_date_raw`, `document_date`, `date_basis` | Preserve the provider date separately from any verified document date and its stated source. |
+| `current_api_roster`, `introduced_author_list`, `later_or_observed_author_list` | Keep current sponsor metadata distinct from author blocks printed in particular text versions. |
 
 The supervised analysis owns target definitions, eligibility and any separately
 reported experiment using later outcomes. These tables do not change raw data,
@@ -68,7 +76,9 @@ to use them.
 - [LegiScan](https://legiscan.com/) API metadata/history, retrieved October 19,
   2026, under [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/).
   `legiscan_comparison.csv` selects, reorganizes and renames provider fields and
-  adds source linkage and comparison fields. Stage labels follow the
+  adds source linkage and comparison fields. The sponsor and text-version
+  tables similarly select provider fields, link them to source rows and add
+  official-source observations. Stage labels follow the
   [LegiScan API manual](https://api.legiscan.com/dl/LegiScan_API_User_Manual.pdf),
   Status/Progress section, printed page 42.
 - Official bill-history URLs appear in the CSVs. Session-closure evidence comes
@@ -93,10 +103,28 @@ party lists against official legislative sources:
 - Delaware SCR 18: the removed record names primary sponsor Richardson.
   The retained six-name list differs from the inspected official sponsor list.
 
-Sponsor scope and collection time need reconciliation before interpreting these
-records' party features. The review does not replace source lists or alter
-the preparation script, generated sponsor features or model inputs.
-Official links, check times and coverage limits appear in the review table.
+[sponsor_resolution.csv](sponsor_resolution.csv) reconciles the current
+rosters: California SCR 82 has Niello, Fong and Sharp-Collins; Delaware SCR 18
+has 20 sponsors. Historical lists remain separate. California's introduced
+text names Niello alone, while its June 11, 2026 amendment adds the two
+Assembly coauthors. Delaware's undated API Draft prints 19 names, omitting
+Vanderwende from the current 20-name list. State and API sponsor-role labels
+are preserved separately because their definitions differ.
+
+These observations do not replace source lists or alter prepared sponsor
+features. Official links, check times and version limits appear in the table.
+
+## Text-version checks
+
+[text_version_review.csv](text_version_review.csv) records available
+references for 20 bills. Its 79 version references include 19 introduced
+references and one selected, undated Delaware Draft. Three Colorado API
+introduced dates are placeholders; the exact PDFs' dates are verified from
+the official bill pages' version tables. Raw provider dates are preserved.
+
+The check identifies available versions and their dates. It does not establish
+full-text equivalence with the corpus, introduction-time availability for all
+fields, or the final model cohort.
 
 ## Snapshot and outcome cutoff options
 
