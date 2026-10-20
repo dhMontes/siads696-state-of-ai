@@ -2,3 +2,4 @@ pandas
 numpy
 matplotlib
 jupyterlab
+scikit-learn>=1.7,<2

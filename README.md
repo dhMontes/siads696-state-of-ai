@@ -6,8 +6,8 @@ This project studies U.S. state AI legislation through two analyses: identifying
 recurring policy themes across states and classifying recorded legislative
 outcomes using bill information.
 
-**Current progress:** Shared data preparation is implemented. Trained models,
-topic results and the final report are not yet included in this repository.
+**Current progress:** Shared data preparation and the topic analysis are implemented.
+Trained models and the final report are not yet included in this repository.
 
 [Workflow](#project-workflow) · [Data source](#data-source) · [Quickstart](#quickstart) · [Files](#repository-guide) · [Scope](#scope-and-next-stages)
 
@@ -146,6 +146,8 @@ Blank cells remain empty strings.
 | [src/prepare.py](src/prepare.py) | Reusable shared preparation |
 | [notebooks/00_source_inspection.ipynb](notebooks/00_source_inspection.ipynb) | Initial raw-data preview and schema inspection |
 | [notebooks/01_data_preparation.ipynb](notebooks/01_data_preparation.ipynb) | Preparation walkthrough, text coverage and date/text review checks |
+| [notebooks/03_topic_analysis.ipynb](notebooks/03_topic_analysis.ipynb) | Topic models, figures and provision-level case review |
+| [src/topic_analysis.py](src/topic_analysis.py) | Helpers used by the topic notebook |
 | [notebooks/04_source_validation.ipynb](notebooks/04_source_validation.ipynb) | Offline 18-bill source validation and seven closed-session reviews |
 | [data/validation/README.md](data/validation/README.md) | Dated observations, comparison tables, field definitions and source attribution |
 | [data/validation/deduplication_review.csv](data/validation/deduplication_review.csv) | Four removed-to-retained source-row pairs and their metadata differences |
@@ -164,6 +166,6 @@ model training belong to the analysis stages. Before changing recorded outcomes,
 choose a consistent observation cutoff and outcome rule. Later source checks stay
 separate so results remain interpretable against the original snapshot.
 
-The supervised and topic-analysis notebooks will document their inputs,
-filtering, methods and results as those stages are completed. Their findings
-and the final report will be linked here for the submitted project.
+The topic-analysis notebook documents its inputs, methods and results. The
+supervised notebook and the final report will be linked here for the submitted
+project.

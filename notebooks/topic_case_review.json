@@ -1,0 +1,126 @@
+{
+  "review_scope": "Purposive reading of stored Bill_Text after inspecting baseline topics 3 and 4. Not a current-law verification.",
+  "cases": [
+    {
+      "source_row": "1856",
+      "relation": "Decision safeguards",
+      "application_domain": "Employment",
+      "applicable_actor": "Employers with at least 11 covered individuals, state agencies and political subdivisions; see section 7 for scope.",
+      "regulated_action": "Use of automated decision outputs in hiring, firing and other employment decisions.",
+      "concrete_requirements": "No exclusive automated reliance; predeployment validation, annual independent bias testing with public results, experienced human corroboration, disclosure, and human dispute/appeal channels.",
+      "differences_and_limits": "More extensive safeguards than SC S 443; a different experienced human hears an appeal. The employer definition excludes labor organizations except in their employer role. This is proposed text in the stored introduced version.",
+      "selection_reason": "Baseline topic 4 rank 3; employment case with operative oversight and appeal provisions.",
+      "passages": [
+        {"section": "IC 22-5-10.4, section 7", "start": "Sec. 7. (a) As used in this chapter", "end": "anyone acting in the capacity of an officer or agent of the labor organization."},
+        {"section": "IC 22-5-10.4, section 10", "start": "Sec. 10. An employer may not:", "end": "who is not the human for purposes of the corroboration under clause (E)."}
+      ]
+    },
+    {
+      "source_row": "2258",
+      "relation": "Decision safeguards",
+      "application_domain": "Employment",
+      "applicable_actor": "Employers using automated applicant or resume screening.",
+      "regulated_action": "Hiring decisions assisted by automated systems.",
+      "concrete_requirements": "Meaningful human evaluation before final/adverse decisions, override authority, notice of automated use and data types, and human review on an unsuccessful applicant's request.",
+      "differences_and_limits": "This short hiring-focused bill does not establish the same annual independent testing package as IN H 1421; the cited sections should not be generalized to every employment decision.",
+      "selection_reason": "Within baseline topic 4 high-weight candidate pool; second jurisdiction for employment oversight.",
+      "passages": [
+        {"section": "Proposed Labor Law section 211-b(1)-(4)", "start": "Section 211-b. Human review of resume screening and hiring decisions.", "end": "upon the request of such applicant."},
+        {"section": "Proposed Labor Law section 211-b(6)(b)", "start": "(b) \"Meaningful human review\" means", "end": "employment decision of an automated system."}
+      ]
+    },
+    {
+      "source_row": "709",
+      "relation": "Decision safeguards",
+      "application_domain": "Health coverage",
+      "applicable_actor": "Health coverage decision makers, with supervision and review by a health care professional as cross-referenced in the bill.",
+      "regulated_action": "Automated coverage decisions, including modification or denial of provider authorization requests.",
+      "concrete_requirements": "No coverage action based solely on AI/tool results; professional supervision and meaningful review when automated tools inform modification or denial of authorization.",
+      "differences_and_limits": "The title/summary says licensed physician, but operative subsection (C) says health care professional (section 44-30-20). No applicant notice, annual audit or human appeal package is stated in this short stored bill. The referenced definition was not independently examined.",
+      "selection_reason": "Baseline topic 4 despite Health Use category; directly tests the employment/health human-oversight hypothesis.",
+      "passages": [
+        {"section": "Proposed section 38-59-23(B)-(C)", "start": "(B) No actions shall be taken concerning healthcare coverage decisions", "end": "provision of health care services to insureds."}
+      ]
+    },
+    {
+      "source_row": "575",
+      "relation": "Decision safeguards",
+      "application_domain": "Housing applicant screening",
+      "applicable_actor": "Landlords using automated housing screening tools.",
+      "regulated_action": "Automated screening of applicants for housing.",
+      "concrete_requirements": "Annual disparate-impact analysis by an independent auditor; public analysis summary; notice about use, characteristics and data; denial reasons; at least 24-hour prior notice enabling an alternative selection process or accommodation request.",
+      "differences_and_limits": "An alternative process/accommodation request is not an explicit universal right to a human override. Tool scope excludes non-discretionary software. Stored text is S 6471-A, while the source identifier omits the amendment suffix.",
+      "selection_reason": "Baseline topic 4 high-weight housing case, compared with lending and employment obligations.",
+      "passages": [
+        {"section": "Proposed Real Property Law section 227-g(1)(b)", "start": "(b) \"Disparate impact analysis\" means", "end": "applicants who were not selected by the tool."},
+        {"section": "Proposed Real Property Law section 227-g(2)-(3)", "start": "2. It shall be unlawful for a landlord", "end": "request an alternative selection process or accommodation."}
+      ]
+    },
+    {
+      "source_row": "589",
+      "relation": "Decision safeguards",
+      "application_domain": "Lending",
+      "applicable_actor": "Covered banking organizations and licensed lenders, excluding listed federal institutions.",
+      "regulated_action": "Automated loan and credit decisions.",
+      "concrete_requirements": "At least annual impact assessments signed by responsible human reviewers, assessments before material changes, public final reports, notice, and a 30-day correction/appeal route for denials based on incorrect personal information.",
+      "differences_and_limits": "The appeal is conditional on incorrect personal information. Human review of an impact assessment does not establish review of every loan decision. The housing bill specifies an independent auditor; this text specifies signatures of responsible reviewers. Stored version is S 8115-B; federal banks and other listed institutions are excluded.",
+      "selection_reason": "Baseline topic 4; source category is only Private Sector Use, but the text identifies lending as a distinct application.",
+      "passages": [
+        {"section": "Proposed Banking Law section 103-a(1)(c)", "start": "(c) \"Covered entity\" means", "end": "organized under the laws of the United States."},
+        {"section": "Proposed Banking Law section 103-a(2)", "start": "2. No less than annually, each covered entity", "end": "Such impact assessment final report shall include:"},
+        {"section": "Proposed Banking Law section 103-a(5)", "start": "5. (a) Any covered entity that uses", "end": "thirty days to correct such information and appeal such denial."}
+      ]
+    },
+    {
+      "source_row": "1456",
+      "relation": "Study and reporting institutions",
+      "application_domain": "Workforce and employment",
+      "applicable_actor": "Illinois Future of Work Task Force.",
+      "regulated_action": "Study of technology's effects on work and preparation of policy recommendations.",
+      "concrete_requirements": "Assess emerging technologies and workforce effects, propose training and other policies, and submit a final report to the Governor and General Assembly.",
+      "differences_and_limits": "Dissolves on filing its final report; broader future-of-work remit than AI alone. IN H 1421 shares the Effect on Labor/Employment label but imposes direct employer obligations rather than establishing a study body. Repeated Illinois companion/version summaries are not independent evidence.",
+      "selection_reason": "Baseline topic 3 rank 1; retain only one Illinois Future of Work record in the case sample.",
+      "passages": [
+        {"section": "Sections 10(a)-(b)", "start": "Section 10. Illinois Future of Work Task Force; duties and responsibilities.", "end": "apprenticeship programs for the jobs of the future."},
+        {"section": "Section 20", "start": "Section 20. Report; dissolution.", "end": "is dissolved upon the filing of its report."}
+      ]
+    },
+    {
+      "source_row": "797",
+      "relation": "Study and reporting institutions",
+      "application_domain": "Education",
+      "applicable_actor": "Utah Artificial Intelligence in Education Task Force.",
+      "regulated_action": "Study and guidance on AI in public and higher education.",
+      "concrete_requirements": "Study and recommend education AI policies, privacy safeguards and implementation guidelines; coordinate with the AI policy office; meet at least quarterly and report annually to legislative education committees.",
+      "differences_and_limits": "Annual reporting contrasts with Illinois's final report and dissolution. The text addresses student privacy and educational agency without imposing a universal individual decision appeal. Stored plain text contains amendment remnants, so changed membership details are not used as evidence.",
+      "selection_reason": "Baseline topic 3 high-weight education case from a different jurisdiction.",
+      "passages": [
+        {"section": "Proposed section 36-29-113(10)-(14)", "start": "(10) The task force shall:", "end": "summarizing the task force's activities and recommendations."}
+      ]
+    },
+    {
+      "source_row": "80",
+      "relation": "Study and reporting institutions",
+      "application_domain": "Criminal justice electronic discovery",
+      "applicable_actor": "Colorado Electronic Discovery in Criminal Cases Task Force and participating agencies.",
+      "regulated_action": "Study of electronic-discovery costs, tools and equitable access, including AI transcription.",
+      "concrete_requirements": "Gather information on discovery services and access; study AI transcription availability; submit findings, recommendations and legislative proposals to budget and technology committees.",
+      "differences_and_limits": "AI is only one part of a broader electronic-discovery study. Agency information-sharing duties have legal and individual-rights exceptions. A common institutional approach does not establish common substantive AI safeguards.",
+      "selection_reason": "Baseline topic 3 high-weight Judicial Use case; provides a boundary case for the claim of specifically AI governance.",
+      "passages": [
+        {"section": "Proposed section 16-18-106(6)(c)(III)", "start": "(III) THE ABILITY TO SEE AUTOMATED TRANSCRIPTIONS", "end": "EXPEDITE REVIEW OF DISCOVERY DOCUMENTS; AND"},
+        {"section": "Proposed section 16-18-106(7)-(8)", "start": "(7) (a) LAW ENFORCEMENT AGENCIES", "end": "BASED ON THE TASK FORCE'S FINDINGS AND RECOMMENDATIONS."}
+      ]
+    }
+  ],
+  "pairs": [
+    {"a": "1856", "b": "709", "relationship": "Employment/health: no sole automation and human oversight", "expected_relation": "similar"},
+    {"a": "2258", "b": "709", "relationship": "Hiring/health: meaningful human review", "expected_relation": "similar"},
+    {"a": "1856", "b": "575", "relationship": "Employment/housing: testing and disclosure, different remedies", "expected_relation": "similar"},
+    {"a": "575", "b": "589", "relationship": "Housing/lending: assessment and notice, different review scope", "expected_relation": "similar"},
+    {"a": "1456", "b": "797", "relationship": "Workforce/education: study body and reporting", "expected_relation": "similar"},
+    {"a": "1456", "b": "80", "relationship": "Workforce/justice: study body and reporting", "expected_relation": "similar"},
+    {"a": "797", "b": "80", "relationship": "Education/justice: study body and reporting", "expected_relation": "similar"},
+    {"a": "1456", "b": "1856", "relationship": "Same labor category: study institution versus direct safeguards", "expected_relation": "different"}
+  ]
+}
