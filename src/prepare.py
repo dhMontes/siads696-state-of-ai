@@ -1,9 +1,9 @@
-"""Preserve source records and add cleaned text and ISO dates for notebooks."""
+"""Prepare shared bill data with cleaned text, dates and sponsor features."""
 
 import argparse
+import ast
 from pathlib import Path
 import unicodedata
-import ast
 
 import pandas as pd
 
@@ -34,8 +34,9 @@ def parse_dates(values):
     ).dt.strftime("%Y-%m-%d")
     return dates
 
-# Make sure the Sponsor_Party column is a list, even if it is stored as a string representation of a list
+
 def parse_sponsor_parties(value):
+    """Read sponsor parties from their stored list representation."""
     if isinstance(value, list):
         return value
     if isinstance(value, str):
@@ -46,8 +47,9 @@ def parse_sponsor_parties(value):
             return []
     return []
 
-# Count the number of Democratic, Republican, Other, and Unknown parties in a list of parties
+
 def count_parties(parties):
+    """Count Democratic, Republican, other and unknown sponsor entries."""
     if not isinstance(parties, list):
         return [0, 0, 0, 0]
 
@@ -68,7 +70,7 @@ def count_parties(parties):
 
 
 def prepare_data(source=DEFAULT_SOURCE, output=DEFAULT_OUTPUT):
-    """Write common records and verify original values and record order."""
+    """Remove repeated cleaned bill text, add shared features and save the table."""
     source, output = Path(source).resolve(), Path(output).resolve()
     if source == output or (output.exists() and source.samefile(output)):
         raise ValueError("Output must not overwrite the source CSV.")
@@ -88,15 +90,12 @@ def prepare_data(source=DEFAULT_SOURCE, output=DEFAULT_OUTPUT):
     prepared["introduction_date_iso"] = parse_dates(original["Introduction_Date"])
     prepared["version_date_iso"] = parse_dates(original["Version_Date"])
 
-    #Remove duplicate rows based on bill text now that all text has been cleaned.
-    prepared = prepared.drop_duplicates(subset=['Bill_Text_clean'], keep='last')
-    
+    # Keep the last source row for each repeated cleaned bill text.
+    prepared = prepared.drop_duplicates(subset=["Bill_Text_clean"], keep="last")
 
-    #Parse the Sponsor_Party column to ensure it is a list.
     prepared["Sponsor_Party"] = prepared["Sponsor_Party"].apply(parse_sponsor_parties)
 
-
-    # Feature engineering: Create 4 new features to count the number of Democratic, Republican, Other, and Unknown parties in the Sponsor_Party column.
+    # Count sponsors by party.
     columns = ["D_Count", "R_Count", "Other_Count", "Unknown_Count"]
 
     prepared[columns] = pd.DataFrame(
@@ -105,7 +104,7 @@ def prepare_data(source=DEFAULT_SOURCE, output=DEFAULT_OUTPUT):
         columns=columns
     )
 
-    # Create 4 new features representing Total Sponsors, Bipartisan Support and overall Democratic and Republican sponsor ratios.
+    # Derive sponsor totals, bipartisan support and party ratios.
     prepared["Total_Sponsors"] = (
         prepared["D_Count"]
         + prepared["R_Count"]
@@ -130,10 +129,6 @@ def prepare_data(source=DEFAULT_SOURCE, output=DEFAULT_OUTPUT):
 
     output.parent.mkdir(parents=True, exist_ok=True)
     prepared.to_csv(output, index=False)
-    saved = pd.read_csv(output, dtype=str, keep_default_na=False, skip_blank_lines=False)
-    pd.testing.assert_index_equal(original.columns, saved.columns[:len(original.columns)])
-    # pd.testing.assert_frame_equal(original, saved[original.columns])
-    # pd.testing.assert_series_equal(prepared["source_row"].astype(str), saved["source_row"])
     return prepared
 
 

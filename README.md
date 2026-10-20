@@ -6,8 +6,8 @@ This project studies U.S. state AI legislation through two analyses: identifying
 recurring policy themes across states and classifying recorded legislative
 outcomes using bill information.
 
-**Current progress:** Shared data preparation and the topic analysis are implemented.
-Trained models and the final report are not yet included in this repository.
+**Current progress:** Shared preparation, source-validation checks and the
+topic-analysis notebook are available in this repository.
 
 [Workflow](#project-workflow) · [Data source](#data-source) · [Quickstart](#quickstart) · [Files](#repository-guide) · [Scope](#scope-and-next-stages)
 
@@ -87,6 +87,15 @@ The current script produces **2,567 rows and 45 columns** from the unchanged
 identical `Bill_Text_clean` value, removing four rows across four pairs.
 The retained rows remain in source order; `source_row` retains their original positions.
 
+| Recorded outcome group | Raw records | Prepared records |
+| --- | --- | --- |
+| Failed | 766 | 764 |
+| Passed | 324 | 323 |
+| Pending | 1,481 | 1,480 |
+
+These are source-recorded groups. The four-row reduction reflects
+deduplication, not an outcome update.
+
 | Field group | Count | Purpose |
 | --- | --- | --- |
 | Source fields | 29 | Retain source columns for each surviving record; `Sponsor_Party` is parsed as a list |
@@ -105,7 +114,7 @@ position rule, not proof that its metadata are newer or more accurate.
 The prepared CSV serializes parsed `Sponsor_Party` lists differently from the raw
 CSV, for example `["R"]` becomes `['R']`. The raw file remains unchanged. Other
 source fields match the corresponding surviving rows in the checked output.
-The script checks column order; the walkthrough and review table explain row changes.
+The walkthrough and review table explain the retained rows and column changes.
 
 ### Field roles
 
@@ -146,26 +155,41 @@ Blank cells remain empty strings.
 | [src/prepare.py](src/prepare.py) | Reusable shared preparation |
 | [notebooks/00_source_inspection.ipynb](notebooks/00_source_inspection.ipynb) | Initial raw-data preview and schema inspection |
 | [notebooks/01_data_preparation.ipynb](notebooks/01_data_preparation.ipynb) | Preparation walkthrough, text coverage and date/text review checks |
+| [notebooks/02_data_split_exploration.ipynb](notebooks/02_data_split_exploration.ipynb) | Supervised exploration of class balance, bill dates and time-based splits |
 | [notebooks/03_topic_analysis.ipynb](notebooks/03_topic_analysis.ipynb) | Topic models, figures and provision-level case review |
 | [src/topic_analysis.py](src/topic_analysis.py) | Helpers used by the topic notebook |
 | [notebooks/04_source_validation.ipynb](notebooks/04_source_validation.ipynb) | Offline 18-bill source validation and seven closed-session reviews |
 | [data/validation/README.md](data/validation/README.md) | Dated observations, comparison tables, field definitions and source attribution |
 | [data/validation/deduplication_review.csv](data/validation/deduplication_review.csv) | Four removed-to-retained source-row pairs and their metadata differences |
-| [docs/related_work_evidence.md](docs/related_work_evidence.md) | Three published-study comparisons and upstream corpus notes, with inspected coverage and limitations |
-| [docs/data_readiness.md](docs/data_readiness.md) | Reproduction commands, prepared counts, text coverage and remaining analysis decisions |
 | [requirements.txt](requirements.txt) | Packages used by the committed script and notebooks |
+
+## Related work
+
+- [Yano, Smith and Wilkerson (2012)](https://aclanthology.org/N12-1097/)
+  compare metadata and introduced bill text for federal committee survival,
+  informing our input comparisons and attention to text versions.
+- [Nay (2017)](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0176999)
+  compares text, context and combined inputs for congressional enactment
+  using chronological evaluation.
+- [Quinn and colleagues (2010)](https://doi.org/10.1111/j.1540-5907.2009.00427.x)
+  learn topics from Senate speeches and interpret political attention,
+  providing a comparison for substantive interpretation of our bill themes.
+
+These studies concern different legislative populations and do not establish
+performance on our state AI corpus.
 
 ## Scope and next stages
 
-Shared preparation keeps records with blank summaries or extracts and date
-differences. It removes identical cleaned bill text using the positional rule
-above and adds the eight sponsor features.
+Our shared preparation keeps records with blank summaries or extracts and
+flags date differences. It removes repeated cleaned bill text and adds eight
+sponsor features.
 
-Target selection, further record filtering, text vectorization, data splits and
-model training belong to the analysis stages. Before changing recorded outcomes,
-choose a consistent observation cutoff and outcome rule. Later source checks stay
-separate so results remain interpretable against the original snapshot.
+Our supervised and topic analyses use the records, text features, splits and
+methods suited to each question. We document these choices and results in
+the corresponding notebooks.
 
-The topic-analysis notebook documents its inputs, methods and results. The
-supervised notebook and the final report will be linked here for the submitted
-project.
+We are keeping the source outcomes for the initial baseline. Any comparison
+using updated outcomes will need a consistent observation date and outcome
+definition. The dated source checks stay separate from the prepared inputs.
+
+We will link our findings and final report here.
