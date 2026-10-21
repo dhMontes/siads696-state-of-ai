@@ -158,7 +158,7 @@ Blank cells remain empty strings.
 | [notebooks/02_data_split_exploration.ipynb](notebooks/02_data_split_exploration.ipynb) | Supervised exploration of class balance, bill dates and time-based splits |
 | [notebooks/03_topic_analysis.ipynb](notebooks/03_topic_analysis.ipynb) | Topic models, figures and provision-level case review |
 | [src/topic_analysis.py](src/topic_analysis.py) | Helpers used by the topic notebook |
-| [notebooks/04_source_validation.ipynb](notebooks/04_source_validation.ipynb) | Offline 18-bill source validation and seven closed-session reviews |
+| [notebooks/04_source_validation.ipynb](notebooks/04_source_validation.ipynb) | Offline outcome checks, a 20-bill text review and a raw-file header screen |
 | [data/validation/README.md](data/validation/README.md) | Dated observations, comparison tables, field definitions and source attribution |
 | [data/validation/deduplication_review.csv](data/validation/deduplication_review.csv) | Four removed-to-retained source-row pairs and their metadata differences |
 | [requirements.txt](requirements.txt) | Packages used by the committed script and notebooks |
@@ -177,6 +177,20 @@ Blank cells remain empty strings.
 
 These studies concern different legislative populations and do not establish
 performance on our state AI corpus.
+
+## Text versions and outcome dates
+
+The [source-validation notebook](notebooks/04_source_validation.ipynb) separates
+recorded dates from text-stage evidence. In the 20-bill review, nine source
+headers identify later stages. Matching the introduction date does not prove
+that the deposited text is the introduced version. The notebook also screens
+all raw headers; an unrecognized header remains unknown.
+
+We keep the original table and recorded outcomes for the initial retrospective
+comparison. The source does not establish one observation date for every outcome.
+The review flags are evidence for input checks, not model features or automatic
+row exclusions. See the [input and cutoff recommendations](data/validation/README.md#using-the-text-review)
+before changing text or labels.
 
 ## Scope and next stages
 

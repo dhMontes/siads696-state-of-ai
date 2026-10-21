@@ -21,6 +21,7 @@ or `notebooks/`, using the existing project dependencies.
 | [sponsor_review.csv](sponsor_review.csv) | October 19 official-source checks of the two duplicate pairs with different sponsor-party lists. |
 | [sponsor_resolution.csv](sponsor_resolution.csv) | Two current sponsor rosters reconciled with official sources, with historical text and role differences preserved. |
 | [text_version_review.csv](text_version_review.csv) | Version-reference checks for 20 records: 79 available references, 19 introduced references and one undated Delaware Draft. |
+| [source_text_review.csv](source_text_review.csv) | October 20 offline date/header review of those 20 source texts, linked to the unchanged raw file and cached October 19 version evidence. |
 
 `source_row` is the one-based record position in `data/raw/Final_Database.csv`.
 The raw file has 2,571 records and 29 fields, with MD5
@@ -125,6 +126,64 @@ the official bill pages' version tables. Raw provider dates are preserved.
 The check identifies available versions and their dates. It does not establish
 full-text equivalence with the corpus, introduction-time availability for all
 fields, or the final model cohort.
+
+## Using the text review
+
+[source_text_review.csv](source_text_review.csv) keeps the source outcome,
+recorded version date, introduced reference, explicit text-stage evidence and
+check scope separate. Nine of the 20 reviewed headers describe later stages:
+five source-Pending bills, three source-Passed bills and one source-Failed bill.
+Those are grouped outcomes; the CSV preserves the exact raw status wording too.
+
+Colorado HB26-1195 has the same February 11, 2026 date as the introduced reference,
+but its source header says PREAMENDED. The official introduced PDF says INTRODUCED.
+Date equality alone would not catch that difference. Three cached Colorado PDFs
+were extracted fully; formatting and line numbers prevent interpreting normalized
+text nonmatches as proof of substantive change. The remaining 17 sample records
+do not have full-body comparisons. No row is marked as verified introduced text.
+
+The notebook checks these sample rows and screens all 2,571 raw headers for
+explicit stage labels. This is a conservative text screen, not complete version
+verification. An unknown header does not establish introduction-time eligibility.
+The source-row locator and review flags must not become predictor features.
+
+| Use | Recommended treatment |
+| --- | --- |
+| Shared table and descriptive topic analysis | Keep the nine rows and their source values. Describe the deposited corpus and its mixed text versions. |
+| Initial recorded-outcome classification | Keep the frozen source baseline for comparability. Document administrative status clues, especially chaptered text, rather than interpreting them as policy content that predicts passage. |
+| Optional sensitivity comparison | The supervised analysis can compare metadata and text on the same retained rows and existing split plan, using one documented header/version rule. Removing only nine convenience-selected cases is not a corpus-wide leakage fix. |
+| Introduction-time forecasting | Require verified inputs available at introduction. These nine texts are not verified for that use; absence of a flag does not qualify the other rows. |
+
+The model owner chooses and reports any scored sensitivity analysis. No filter,
+header removal, text replacement or outcome change is applied by this review.
+Removing administrative headings alone would not establish historical timing
+for the remaining text or metadata.
+
+## Outcome timing recommendation
+
+For the main comparison, use **recorded outcomes from frozen Zenodo v4**, identified
+by MD5 `397a13c53e719e64e52725e7995fd8ca`. A uniform outcome observation date is
+undocumented. Publication date, April text coverage and October validation dates
+must not be substituted for that missing fact.
+
+Keep the four later enactment observations separate. Updating only successfully
+matched Pending records would mix observation windows across the corpus. The
+seven closed-session checks support keeping the existing Failed/Adjourned labels.
+For the current recorded-status task, Pending remains a snapshot state. For a
+future final enactment task, Pending and governor-stage cases remain unresolved,
+not failed. Adopted resolutions and enacted statutes also need distinct treatment.
+
+If the team later adds a separate outcome refresh, **October 19, 2026, end of day
+in America/New_York** is a proposed event cutoff aligned with this pilot. It is
+not an applied or team-approved cutoff. Reconstruct every included bill's status
+through that date, record retrieval times separately, preserve unresolved and
+unmatched cases, and define finality by state/session and measure type. The current
+evidence supports 18 selected bills checked October 13–19, not a whole-corpus
+October 19 target. A different agreed date can be used with the same requirements.
+
+The supervised analysis owns the target, eligibility, cutoff and matched-cohort
+comparison. Topic analysis retains its own text decisions. Shared preparation
+supplies the linked evidence without changing either method.
 
 ## Snapshot and outcome cutoff options
 
