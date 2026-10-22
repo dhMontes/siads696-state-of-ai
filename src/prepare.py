@@ -1,4 +1,5 @@
 """Preserve source records and add cleaned text and ISO dates for notebooks."""
+"""Modified to remove duplicate rows based on bill text and add feature engineering for sponsor party counts and ratios."""
 
 import argparse
 from pathlib import Path
