@@ -9,3 +9,6 @@ __pycache__/
 *.py[cod]
 .ipynb_checkpoints/
 .notebook-runtime/
+
+# Reproducible topic tables, figures and model objects
+/outputs/topic_analysis/

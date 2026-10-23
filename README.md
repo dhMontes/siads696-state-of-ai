@@ -6,8 +6,8 @@ This project studies U.S. state AI legislation through two analyses: identifying
 recurring policy themes across states and classifying recorded legislative
 outcomes using bill information.
 
-**Current progress:** Shared data preparation is implemented. Trained models,
-topic results and the final report are not yet included in this repository.
+**Current progress:** Shared preparation, source-validation checks and the
+topic-analysis notebook are available in this repository.
 
 [Workflow](#project-workflow) · [Data source](#data-source) · [Quickstart](#quickstart) · [Files](#repository-guide) · [Scope](#scope-and-next-stages)
 
@@ -31,8 +31,9 @@ topic results and the final report are not yet included in this repository.
                  Combined findings and report
 ```
 
-Both analyses will start from the same source snapshot. Shared preparation keeps the original
-records; each analysis chooses its own features and which records to include.
+Both analyses start from the same source snapshot. Shared preparation normalizes text,
+removes repeated cleaned bill text and adds sponsor features. Each analysis chooses
+its inputs and any additional eligibility rules.
 
 ## Data source
 
@@ -43,7 +44,8 @@ The starting point is Bhargava and Soliman's
 | --- | --- |
 | Published file | `Final_Database_10.csv` |
 | Repository copy | [data/raw/Final_Database.csv](data/raw/Final_Database.csv), unchanged from the published file |
-| Dimensions | 2,571 records and 29 original fields |
+| Raw dimensions | 2,571 records and 29 original fields |
+| Raw file MD5 | `397a13c53e719e64e52725e7995fd8ca` |
 | Contents | Bill text, state information, dates, recorded outcomes and publisher-supplied classifications |
 
 The record count is not a verified count of unique bills.
@@ -80,22 +82,54 @@ text-coverage checks and date/text review findings.
 
 ## Prepared data
 
-The output keeps all 2,571 source records. Its 37 columns contain the 29 original
-fields and eight additions:
+The current script produces **2,567 rows and 45 columns** from the unchanged
+2,571-row, 29-column raw file. It keeps the last source occurrence of each
+identical `Bill_Text_clean` value, removing four rows across four pairs.
+The retained rows remain in source order; `source_row` retains their original positions.
+
+| Recorded outcome group | Raw records | Prepared records |
+| --- | --- | --- |
+| Failed | 766 | 764 |
+| Passed | 324 | 323 |
+| Pending | 1,481 | 1,480 |
+
+These are source-recorded groups. The four-row reduction reflects
+deduplication, not an outcome update.
 
 | Field group | Count | Purpose |
 | --- | --- | --- |
-| Original fields | 29 | Preserve the source values and original record order |
-| Cleaned text copies (`*_clean`) | 5 | Normalize Unicode and whitespace while retaining the originals |
-| Dates in year-month-day format | 2 | Make the available introduction and version dates easier to compare |
-| `source_row` | 1 | Identify the record's one-based position in this source snapshot |
-| Sponsor Party counts, proportions totals| 7| Engineered features from Sponsor Party to best utilize available data.|
-|Bipartisan Support|1|Flag for bills that are sponsored with members of both major parties derived from Sponsor Party counts.|
+| Source fields | 29 | Retain source columns for each surviving record; `Sponsor_Party` is parsed as a list |
+| Cleaned text copies (`*_clean`) | 5 | Normalize Unicode and whitespace without replacing the original text |
+| Dates in year-month-day format | 2 | Compare available introduction and version dates |
+| `source_row` | 1 | Locate the record's one-based position in this raw snapshot |
+| Sponsor features | 8 | Describe party counts, sponsor totals, party ratios and bipartisan sponsorship |
 
-The script checks that the saved original fields and record order match the
-source. These 37 columns are a shared working table, not a prescribed list of
-model inputs. `source_row` is a source locator, not a model feature or a unique-bill
-identifier.
+The [four-pair deduplication review](data/validation/deduplication_review.csv)
+maps each removed source row to the retained row. Within each pair, the source
+URLs encode the same bill identifier, although bill-number formatting and some
+metadata differ. This supports a same-bill interpretation within the file; it
+does not verify the records against the legislature. Keeping the last row is a
+position rule, not proof that its metadata are newer or more accurate.
+
+The prepared CSV serializes parsed `Sponsor_Party` lists differently from the raw
+CSV, for example `["R"]` becomes `['R']`. The raw file remains unchanged. Other
+source fields match the corresponding surviving rows in the checked output.
+The walkthrough and review table explain the retained rows and column changes.
+
+### Field roles
+
+These are available fields, not a prescribed feature set for either analysis.
+
+| Role | Fields | How to use them |
+| --- | --- | --- |
+| Text candidates | `Bill_Text_clean`, `Bill_Title_clean`, `NCSL_Summary_clean`, `summary_clean`, `bill_extracts_clean` | Select text appropriate to the question; summary and extract coverage differs from full text |
+| Recorded outcomes | `Bill_Status`, `Bill_Status_Grouped` | Source-snapshot labels; distinguish them from later dated observations |
+| Identity and timing | `Bill_Number`, `Jurisdiction`, `Year`, `Bill_URL`, `introduction_date_iso`, `version_date_iso` | Check identity and whether text timing fits the analysis |
+| Source locator | `source_row` | Reconnect a prepared row to this exact raw snapshot; not a model feature or unique-bill identifier |
+| Sponsor counts | `D_Count`, `R_Count`, `Other_Count`, `Unknown_Count` | Counts derived from parsed `Sponsor_Party` entries |
+| Sponsor totals and mix | `Total_Sponsors`, `Bipartisan_Support`, `Democrat_Sponsor_Ratio`, `Republican_Sponsor_Ratio` | Total entries, presence of both major parties, and party shares of all entries |
+| Publisher processing and annotations | `status`, `retry_attempts`, `analyst_results`, taxonomy score columns | Processing or publisher-generated classifications; `status` is not a legislative outcome |
+| Dated validation evidence | [data/validation/](data/validation/README.md) | Separate observations and comparison tables; not automatically substituted training labels |
 
 ### Load the table
 
@@ -121,20 +155,55 @@ Blank cells remain empty strings.
 | [src/prepare.py](src/prepare.py) | Reusable shared preparation |
 | [notebooks/00_source_inspection.ipynb](notebooks/00_source_inspection.ipynb) | Initial raw-data preview and schema inspection |
 | [notebooks/01_data_preparation.ipynb](notebooks/01_data_preparation.ipynb) | Preparation walkthrough, text coverage and date/text review checks |
+| [notebooks/02_data_split_exploration.ipynb](notebooks/02_data_split_exploration.ipynb) | Supervised exploration of class balance, bill dates and time-based splits |
+| [notebooks/03_topic_analysis.ipynb](notebooks/03_topic_analysis.ipynb) | Topic models, figures and provision-level case review |
+| [src/topic_analysis.py](src/topic_analysis.py) | Helpers used by the topic notebook |
+| [notebooks/04_source_validation.ipynb](notebooks/04_source_validation.ipynb) | Offline outcome checks, a 20-bill text review and a raw-file header screen |
+| [data/validation/README.md](data/validation/README.md) | Dated observations, comparison tables, field definitions and source attribution |
+| [data/validation/deduplication_review.csv](data/validation/deduplication_review.csv) | Four removed-to-retained source-row pairs and their metadata differences |
 | [requirements.txt](requirements.txt) | Packages used by the committed script and notebooks |
+
+## Related work
+
+- [Yano, Smith and Wilkerson (2012)](https://aclanthology.org/N12-1097/)
+  compare metadata and introduced bill text for federal committee survival,
+  informing our input comparisons and attention to text versions.
+- [Nay (2017)](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0176999)
+  compares text, context and combined inputs for congressional enactment
+  using chronological evaluation.
+- [Quinn and colleagues (2010)](https://doi.org/10.1111/j.1540-5907.2009.00427.x)
+  use topic modeling to study themes in U.S. Senate speeches. We use their
+  work as a comparison for our topic analysis of state AI bills.
+
+These studies concern different legislative populations and do not establish
+performance on our state AI corpus.
+
+## Text versions and outcome dates
+
+The [source-validation notebook](notebooks/04_source_validation.ipynb) separates
+recorded dates from text-stage evidence. In the 20-bill review, nine source
+headers identify later stages. Matching the introduction date does not prove
+that the deposited text is the introduced version. The notebook also screens
+all raw headers; an unrecognized header remains unknown.
+
+We keep the original table and recorded outcomes for the initial retrospective
+comparison. The source does not establish one observation date for every outcome.
+The review flags are evidence for input checks, not model features or automatic
+row exclusions. See the [input and cutoff recommendations](data/validation/README.md#using-the-text-review)
+before changing text or labels.
 
 ## Scope and next stages
 
-Shared preparation retains records with blank summaries or extracts, date
-differences and repeated wording. The notebook presents these findings for review.
+Our shared preparation keeps records with blank summaries or extracts and
+flags date differences. It removes repeated cleaned bill text and adds eight
+sponsor features.
 
-Target selection, record filtering, deduplication, text vectorization, data splits
-and model training belong to the analysis stages. They are not applied by the
-shared preparation script.
+Our supervised and topic analyses use the records, text features, splits and
+methods suited to each question. We document these choices and results in
+the corresponding notebooks.
 
-Row duplicates has been taken care within shared preparation as well as feature engineering to ensure 
-all members have access to the same level of features. 
+We are keeping the source outcomes for the initial baseline. Any comparison
+using updated outcomes will need a consistent observation date and outcome
+definition. The dated source checks stay separate from the prepared inputs.
 
-The supervised and topic-analysis notebooks will document their inputs,
-filtering, methods and results as those stages are completed. Their findings
-and the final report will be linked here for the submitted project.
+We will link our findings and final report here.
