@@ -6,8 +6,8 @@ This project studies U.S. state AI legislation through two analyses: identifying
 recurring policy themes across states and classifying recorded legislative
 outcomes using bill information.
 
-**Current progress:** Shared preparation, source-validation checks and the
-topic-analysis notebook are available in this repository.
+**Current progress:** Shared preparation, source-validation checks, NMF/LDA
+topic analysis and classification baselines are available in this repository.
 
 [Workflow](#project-workflow) · [Data source](#data-source) · [Quickstart](#quickstart) · [Files](#repository-guide) · [Scope](#scope-and-next-stages)
 
@@ -55,6 +55,16 @@ The lowercase `status` field describes publisher processing, not a bill outcome.
 ## Quickstart
 
 Run these commands from the repository root, using Python with pip.
+All six notebooks ran successfully with Python 3.12.
+
+Create a project environment first:
+
+```shell
+python -m venv .venv
+```
+
+Activate it with `.venv\Scripts\Activate.ps1` in PowerShell, or
+`source .venv/bin/activate` on macOS/Linux.
 
 ### 1. Install packages
 
@@ -71,14 +81,26 @@ python src/prepare.py
 The script creates `data/processed/common_intake/common_records.csv`.
 Generated tables are excluded from Git; each teammate runs this step locally.
 
-### 3. Open the walkthrough
+### 3. Run the notebooks
 
 ```shell
-jupyter lab notebooks/01_data_preparation.ipynb
+python -m jupyter lab
 ```
 
-Run the notebook cells from top to bottom for the preparation explanation,
-text-coverage checks and date/text review findings.
+Select the project environment's Python kernel. Run each notebook from top to
+bottom, in numbered order from `00` through `05`. Notebook `01` regenerates the
+shared table and checks which records fall within the current split windows.
+Notebooks `02`, `03` and `05` read that prepared table. Notebook `04` reviews
+the saved source evidence offline; no API key is needed for these runs.
+
+For a command-line run of all six notebooks:
+
+```shell
+python -m jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.timeout=1800 "notebooks/*.ipynb"
+```
+
+This refreshes notebook outputs locally. Topic and classification runs can
+take several minutes. Generated tables and topic exports remain outside Git.
 
 ## Prepared data
 
@@ -159,6 +181,8 @@ Blank cells remain empty strings.
 | [notebooks/03_topic_analysis.ipynb](notebooks/03_topic_analysis.ipynb) | Topic models, figures and provision-level case review |
 | [src/topic_analysis.py](src/topic_analysis.py) | Helpers used by the topic notebook |
 | [notebooks/04_source_validation.ipynb](notebooks/04_source_validation.ipynb) | Offline outcome checks, a 20-bill text review and a raw-file header screen |
+| [notebooks/05_classification_baselines.ipynb](notebooks/05_classification_baselines.ipynb) | Logistic Regression, Linear SVM and XGBoost input comparisons |
+| [src/classification_helpers.py](src/classification_helpers.py) | Preprocessing, model fitting and comparison plots used by the baseline notebook |
 | [data/validation/README.md](data/validation/README.md) | Dated observations, comparison tables, field definitions and source attribution |
 | [data/validation/deduplication_review.csv](data/validation/deduplication_review.csv) | Four removed-to-retained source-row pairs and their metadata differences |
 | [requirements.txt](requirements.txt) | Packages used by the committed script and notebooks |

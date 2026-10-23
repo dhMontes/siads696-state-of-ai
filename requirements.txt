@@ -1,5 +1,7 @@
 pandas
 numpy
 matplotlib
+seaborn>=0.12
+xgboost
 jupyterlab
 scikit-learn>=1.7,<2
