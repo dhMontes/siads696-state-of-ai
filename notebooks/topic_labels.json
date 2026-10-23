@@ -3,7 +3,7 @@
     "topic_id": 0,
     "name": "Generic artificial-intelligence wording (weak)",
     "interpretation": "Spelled-out AI language still dominates short summaries. Removing four format words does not solve limited source detail.",
-    "review": "Low specificity; do not label as a common governance rule.",
+    "review": "Broad AI wording without a distinct governance mechanism.",
     "expected_keywords": [
       "artificial intelligence",
       "intelligence",
@@ -66,7 +66,7 @@
     "topic_id": 3,
     "name": "State administration, education and study bodies (broad)",
     "interpretation": "State and education vocabulary merges with task-force and reporting language. The former separate task-force cluster is no longer isolated.",
-    "review": "Highest-weight examples remain mostly Illinois task forces, but the larger cluster is heterogeneous; do not generalize the representatives to all members.",
+    "review": "Representatives emphasize Illinois task forces; the full cluster contains a wider mix of bills.",
     "expected_keywords": [
       "state",
       "task",
@@ -87,7 +87,7 @@
     "topic_id": 4,
     "name": "Automated decisions across application domains",
     "interpretation": "Employment, lending and other consequential decision tools; shared safeguards require provision-level comparison.",
-    "review": "Employment and lending representatives support case leads; provisions must be checked separately.",
+    "review": "Employment and lending examples indicate application domains, not necessarily shared policy requirements.",
     "expected_keywords": [
       "decision",
       "automated",
