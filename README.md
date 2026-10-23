@@ -94,8 +94,9 @@ shared table and checks which records fall within the current split windows.
 Notebooks `02`, `03` and `05` read that prepared table. Notebook `04` reviews
 the saved source evidence offline; no API key is needed for these runs.
 
-Notebook `06` adds expanding-year cross-validation, a majority-class reference
-and 2025 validation error examples. It keeps the 2026 test cohort untouched.
+Notebook `06` compares the baselines across introduction years and shows
+2025 prediction errors. It also tests SVM class weights, regularization and
+feature groups. The 2026 bills are saved for the final classifier test.
 
 For a command-line run of all seven notebooks:
 
