@@ -85,9 +85,9 @@ to use them.
 - Official bill-history URLs appear in the CSVs. Session-closure evidence comes
   from the [Texas Legislative Reference Library's post-session FAQ](https://www.lrl.texas.gov/whatsNew/client/index.cfm/2025/6/3/Whats-Next-PostSession-FAQ-and-Bill-Statistics-89th-RS)
   and [Colorado's extraordinary-session journal](https://content.leg.colorado.gov/sites/default/files/2025_house_journal.pdf),
-  printed page 76 (PDF page 80). All seven official bill histories were directly
-  retrieved October 19. The Texas FAQ was read through its official web result
-  after a direct request returned 403; that route does not imply a direct HTTP read.
+  printed page 76 (PDF page 80). The seven official histories were checked
+  October 19. The Texas closure rule was checked in the official FAQ's available
+  web text; the linked page was inaccessible.
 
 ## Duplicate and sponsor checks
 
@@ -184,16 +184,3 @@ October 19 target. A different agreed date can be used with the same requirement
 The supervised analysis owns the target, eligibility, cutoff and matched-cohort
 comparison. Topic analysis retains its own text decisions. Shared preparation
 supplies the linked evidence without changing either method.
-
-## Snapshot and outcome cutoff options
-
-| Option | What stays comparable | Remaining decision |
-| --- | --- | --- |
-| Fixed source baseline | Use one preserved source snapshot and its recorded outcomes for initial comparisons. | State the snapshot and the analysis eligibility rules; a recorded outcome is not automatically a verified final outcome. |
-| Separate dated update experiment | Keep the baseline, and evaluate independently reviewed outcomes observed through one common date. | Agree the date, eligible population, terminal-outcome rule, treatment of unresolved/missing matches and compatible text versions before changing labels. |
-
-Keep the baseline fixed while the team chooses these rules. The 18-record pilot
-provides dated evidence, not a complete updated training target. Do not selectively
-overwrite only successfully matched records or combine later outcomes with
-unexamined later text. Record bill event dates separately from retrieval times.
-The supervised analysis owns the final target, eligibility and comparison design.

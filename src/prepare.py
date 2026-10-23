@@ -77,13 +77,16 @@ def prepare_data(source=DEFAULT_SOURCE, output=DEFAULT_OUTPUT):
 
     # Read every cell as text so blanks and literal markers such as N/A survive.
     original = pd.read_csv(source, dtype=str, keep_default_na=False, skip_blank_lines=False)
-    added_columns = ["source_row", *(name + "_clean" for name in TEXT_COLUMNS),
-                     "introduction_date_iso", "version_date_iso"]
+    added_columns = (
+        ["source_row"]
+        + [name + "_clean" for name in TEXT_COLUMNS]
+        + ["introduction_date_iso", "version_date_iso"]
+    )
     if original.columns.intersection(added_columns).size:
         raise ValueError("Source already contains a preparation column.")
 
     prepared = original.copy()
-    # Record positions remain useful when a quoted CSV value spans several lines.
+    # Keep the original CSV record number for joins after filtering.
     prepared["source_row"] = range(1, len(original) + 1)
     for name in TEXT_COLUMNS:
         prepared[name + "_clean"] = original[name].map(clean_text)
