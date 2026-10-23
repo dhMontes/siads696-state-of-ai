@@ -66,10 +66,10 @@ The CSVs retain primary links and check times so the evidence can be inspected.
 | `api_date_raw`, `document_date`, `date_basis` | Preserve the provider date separately from any verified document date and its stated source. |
 | `current_api_roster`, `introduced_author_list`, `later_or_observed_author_list` | Keep current sponsor metadata distinct from author blocks printed in particular text versions. |
 
-The supervised analysis owns target definitions, eligibility and any separately
-reported experiment using later outcomes. These tables do not change raw data,
-prepared inputs, features, splits or models. No API key or API request is needed
-to use them.
+Target definitions, eligibility and experiments using later outcomes are
+outside the scope of these source-validation tables. These tables do not change
+raw data, prepared inputs, features, splits or models. No API key or API request
+is needed to use them.
 
 ## Sources and attribution
 
@@ -154,20 +154,19 @@ The source-row locator and review flags must not become predictor features.
 | Optional sensitivity comparison | The supervised analysis can compare metadata and text on the same retained rows and existing split plan, using one documented header/version rule. Removing only nine convenience-selected cases is not a corpus-wide leakage fix. |
 | Introduction-time forecasting | Require verified inputs available at introduction. These nine texts are not verified for that use; absence of a flag does not qualify the other rows. |
 
-The model owner chooses and reports any scored sensitivity analysis. No filter,
-header removal, text replacement or outcome change is applied by this review.
+This review applies no filtering, header removal, text replacement or outcome changes.
 Removing administrative headings alone would not establish historical timing
 for the remaining text or metadata.
 
 ## Outcome timing recommendation
 
-For the main comparison, use **recorded outcomes from frozen Zenodo v4**, identified
+The main comparison uses **recorded outcomes from frozen Zenodo v4**, identified
 by MD5 `397a13c53e719e64e52725e7995fd8ca`. A uniform outcome observation date is
-undocumented. Publication date, April text coverage and October validation dates
-must not be substituted for that missing fact.
+undocumented. Publication, text-coverage and validation dates describe different
+events and do not supply that missing date.
 
-Keep the four later enactment observations separate. Updating only successfully
-matched Pending records would mix observation windows across the corpus. The
+The four later enactment observations remain separate from the model labels.
+Updating only successfully matched Pending records would mix observation windows across the corpus. The
 seven closed-session checks support keeping the existing Failed/Adjourned labels.
 For the current recorded-status task, Pending remains a snapshot state. For a
 future final enactment task, Pending and governor-stage cases remain unresolved,
@@ -175,12 +174,11 @@ not failed. Adopted resolutions and enacted statutes also need distinct treatmen
 
 If the team later adds a separate outcome refresh, **October 19, 2026, end of day
 in America/New_York** is a proposed event cutoff aligned with this pilot. It is
-not an applied or team-approved cutoff. Reconstruct every included bill's status
-through that date, record retrieval times separately, preserve unresolved and
-unmatched cases, and define finality by state/session and measure type. The current
-evidence supports 18 selected bills checked October 13–19, not a whole-corpus
+not an applied or team-approved cutoff. Such a comparison would need each
+included bill's status through that date, separate retrieval times, explicit
+unresolved/unmatched cases, and finality rules by state/session and measure type.
+The current evidence supports 18 selected bills checked October 13–19, not a whole-corpus
 October 19 target. A different agreed date can be used with the same requirements.
 
-The supervised analysis owns the target, eligibility, cutoff and matched-cohort
-comparison. Topic analysis retains its own text decisions. Shared preparation
-supplies the linked evidence without changing either method.
+Shared preparation supplies linked source-validation evidence without changing
+the supervised or topic-analysis methods.
