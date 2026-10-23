@@ -2,85 +2,89 @@
 
 SIADS 696: Milestone II · University of Michigan, Master of Applied Data Science
 
-This project studies U.S. state AI legislation through two analyses: identifying
-recurring policy themes across states and classifying recorded legislative
-outcomes using bill information.
+We study U.S. state AI legislation from two angles: recurring policy themes
+across states and the bill information associated with recorded outcomes.
+The project combines NMF and LDA topic models with Logistic Regression,
+Linear SVM and XGBoost classifiers.
 
-**Current progress:** Shared preparation, source-validation checks, NMF/LDA
-topic analysis and classification baselines are available in this repository.
+[Data](#data) · [Setup](#setup-and-running-the-project) · [Notebooks](#notebooks) · [Limitations](#interpreting-the-results) · [Related work](#related-work)
 
-[Workflow](#project-workflow) · [Data source](#data-source) · [Quickstart](#quickstart) · [Files](#repository-guide) · [Scope](#scope-and-next-stages)
-
-## Project workflow
+## Workflow
 
 ```text
-                Published legislation corpus
-                             |
-                             v
-                Shared preparation and review
-                             |
-                +------------+-------------+
-                |                          |
-                v                          v
-       Supervised analysis           Topic analysis
-       Recorded outcomes             Themes across states
-                |                          |
-                +------------+-------------+
-                             |
-                             v
-                 Combined findings and report
+            Published legislation CSV
+                       |
+             Shared data preparation
+                       |
+          +------------+------------+
+          |                         |
+  Outcome classification     Topic analysis
+          |                         |
+          +------------+------------+
+                       |
+              Findings and report
 ```
 
-Both analyses start from the same source snapshot. Shared preparation normalizes text,
-removes repeated cleaned bill text and adds sponsor features. Each analysis chooses
-its inputs and any additional eligibility rules.
+Both analyses use the same prepared table, with additional filtering and
+features chosen for each analysis.
 
-## Data source
+## Data
 
-The starting point is Bhargava and Soliman's
+Our source is Bhargava and Soliman's
 [U.S. State AI Legislation Corpus, version 4](https://zenodo.org/records/20781731).
+The published file, `Final_Database_10.csv`, is preserved as
+[data/raw/Final_Database.csv](data/raw/Final_Database.csv). It contains
+**2,571 records and 29 columns**, including bill text, state information,
+dates, recorded statuses and publisher-generated classifications.
 
-| Snapshot | Details |
-| --- | --- |
-| Published file | `Final_Database_10.csv` |
-| Repository copy | [data/raw/Final_Database.csv](data/raw/Final_Database.csv), unchanged from the published file |
-| Raw dimensions | 2,571 records and 29 original fields |
-| Raw file MD5 | `397a13c53e719e64e52725e7995fd8ca` |
-| Contents | Bill text, state information, dates, recorded outcomes and publisher-supplied classifications |
+[src/prepare.py](src/prepare.py) creates a table with **2,567 rows and 45 columns**.
+It adds cleaned text, standardized dates, a source-row locator and eight sponsor
+features. Four rows with identical cleaned bill text are removed, keeping the
+last occurrence in source order. This rule does not establish which record has
+the most accurate metadata; the [deduplication review](data/validation/deduplication_review.csv)
+shows the four pairs. The raw file is unchanged.
 
-The record count is not a verified count of unique bills.
-`Bill_Status` and `Bill_Status_Grouped` describe recorded legislative outcomes.
-The lowercase `status` field describes publisher processing, not a bill outcome.
+The classifiers use the publisher's `Bill_Status_Grouped` labels:
 
-## Quickstart
+| Group | Prepared records | Source statuses included |
+| --- | --- | --- |
+| Failed | 764 | Failed and Vetoed |
+| Passed | 323 | Enacted and Adopted |
+| Pending | 1,480 | Pending, To Governor and Override Pending |
 
-Run these commands from the repository root, using Python with pip.
-The notebooks use Python 3.12.
+These groups describe the source snapshot. Pending includes unresolved bills;
+Passed does not mean every record is an enacted law. The lowercase `status`
+column tracks publisher processing and is not a legislative outcome.
 
-Create a project environment first:
+Records with blank summary or extract fields remain in the shared table.
+`source_row` identifies a record's one-based position in the raw CSV; it is
+neither a unique-bill identifier nor a model input. Notebook
+[01](notebooks/01_data_preparation.ipynb) explains the column changes and checks
+text coverage, dates and bill versions. It creates the review flags separately
+from the preparation script.
+
+## Setup and running the project
+
+Use Python 3.12 and run commands from the repository root.
+
+### 1. Create and activate an environment
 
 ```shell
 python -m venv .venv
 ```
 
-Activate it with `.venv\Scripts\Activate.ps1` in PowerShell, or
-`source .venv/bin/activate` on macOS/Linux.
+| Shell | Activation command |
+| --- | --- |
+| PowerShell | `.venv\Scripts\Activate.ps1` |
+| macOS/Linux | `source .venv/bin/activate` |
 
-### 1. Install packages
+### 2. Install packages and prepare the data
 
 ```shell
 python -m pip install -r requirements.txt
 python -m ipykernel install --sys-prefix --name state-ai-policy --display-name "State AI Policy"
-```
-
-### 2. Prepare the shared data
-
-```shell
 python src/prepare.py
 ```
-
-The script creates `data/processed/common_intake/common_records.csv`.
-Generated tables are excluded from Git; each teammate runs this step locally.
 
 ### 3. Run the notebooks
 
@@ -88,29 +92,64 @@ Generated tables are excluded from Git; each teammate runs this step locally.
 python -m jupyter lab
 ```
 
-Select the **State AI Policy** kernel. Run each notebook from top to
-bottom, in numbered order from `00` through `06`. Notebook `01` regenerates the
-shared table and checks which records fall within the current split windows.
-Notebooks `02`, `03` and `05` read that prepared table. Notebook `04` reviews
-the saved source evidence offline; no API key is needed for these runs.
+Select the **State AI Policy** kernel and run each notebook from top to bottom,
+in numbered order. The source-validation notebook uses saved evidence and runs
+offline; no API key is needed to reproduce the notebooks.
 
-Notebook `06` compares the baselines across introduction years and shows
-2025 prediction errors. It also tests SVM class weights, regularization and
-feature groups. The 2026 bills are saved for the final classifier test.
-
-For a command-line run of all seven notebooks:
+To execute all seven notebooks from the command line:
 
 ```shell
 python -m jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.kernel_name=state-ai-policy --ExecutePreprocessor.timeout=1800 "notebooks/*.ipynb"
 ```
 
-This refreshes notebook outputs locally. Topic and classification runs can
-take several minutes. Generated tables and topic exports remain outside Git.
+Model runs can take several minutes. This command replaces the saved notebook
+outputs in your local copy.
 
-### Add topic features to a classification experiment
+### Generated files
 
-In notebook `05`, pass `topic_method="nmf"` or `topic_method="lda"` to an
-existing `run_experiment` call. This example uses the notebook's data and settings:
+| Location | Contents |
+| --- | --- |
+| `data/processed/common_intake/common_records.csv` | Shared prepared table from `prepare.py` |
+| `data/processed/common_intake/analysis_rows.csv` | Notebook 01's record checks and split eligibility |
+| `outputs/topic_analysis/` | Topic tables, figures and model objects |
+| `data/processed/model_evaluation/` | Evaluation tables and figures |
+
+These outputs are excluded from Git and regenerated locally.
+
+To load the prepared table while preserving blank cells as empty strings:
+
+```python
+import pandas as pd
+
+common = pd.read_csv(
+    "data/processed/common_intake/common_records.csv",
+    dtype=str,
+    keep_default_na=False,
+)
+```
+
+## Notebooks
+
+| Notebook | Contents |
+| --- | --- |
+| [00 · Source inspection](notebooks/00_source_inspection.ipynb) | Raw-data preview, columns and types |
+| [01 · Data preparation](notebooks/01_data_preparation.ipynb) | Shared preparation, text coverage, date checks and split eligibility |
+| [02 · Split exploration](notebooks/02_data_split_exploration.ipynb) | Class balance and introduction-year splits |
+| [03 · Topic analysis](notebooks/03_topic_analysis.ipynb) | NMF and LDA models, figures and bill-text examples |
+| [04 · Source validation](notebooks/04_source_validation.ipynb) | Selected outcome checks, text-version review and raw-header screening |
+| [05 · Classification baselines](notebooks/05_classification_baselines.ipynb) | Logistic Regression, Linear SVM and XGBoost input comparisons |
+| [06 · Model evaluation](notebooks/06_model_evaluation.ipynb) | Temporal cross-validation, prediction errors, SVM settings and feature comparisons |
+
+Reusable functions are in [src/topic_analysis.py](src/topic_analysis.py) and
+[src/classification_helpers.py](src/classification_helpers.py). Dependencies
+are listed in [requirements.txt](requirements.txt). Dated source checks and
+their definitions are documented in [data/validation/](data/validation/README.md).
+
+<details>
+<summary>Add NMF or LDA features to a classifier</summary>
+
+In notebook 05, add `topic_method="nmf"` or `topic_method="lda"` to an existing
+`run_experiment` call. This example uses that notebook's data and settings:
 
 ```python
 topic_run = ch.run_experiment(
@@ -128,104 +167,36 @@ topic_run = ch.run_experiment(
 pd.DataFrame([topic_run["metrics"]]).round(4)
 ```
 
-The pipeline learns vocabulary and topics from `NCSL_Summary_clean` in the
-training records, then transforms validation records. Compare it with the
-matching baseline on the same rows and folds. Existing calls without
-`topic_method` keep their original behavior.
+The pipeline fits vocabulary and topics on training bills using
+`NCSL_Summary_clean`, then transforms validation bills. Compare with a baseline
+using the same records and folds. Calls without `topic_method` use the original
+inputs.
 
-NMF uses TF-IDF and LDA uses counts. Both supervised topic branches use the
-English and legal stopwords, unigrams/bigrams and eight components by default; this
-LDA vocabulary differs from the English-only descriptive LDA baseline.
-Nonzero topic-weight rows are normalized to sum one. Topic numbers belong to
-that fitted training model and do not inherit the descriptive model's names.
-Keep the full-corpus topic exports for descriptive analysis rather than
-joining them into held-out classifier inputs.
+NMF uses TF-IDF; LDA uses word counts. Both classifier options use English and
+legal stopwords and eight topics by default. The descriptive LDA model uses
+English stopwords only, so its vocabulary differs. Topic numbers are specific
+to each fitted model. The full-corpus descriptive topic exports include held-out
+bills and are not used as classifier inputs.
 
-## Prepared data
+</details>
 
-The current script produces **2,567 rows and 45 columns** from the unchanged
-2,571-row, 29-column raw file. It keeps the last source occurrence of each
-identical `Bill_Text_clean` value, removing four rows across four pairs.
-The retained rows remain in source order; `source_row` retains their original positions.
+## Interpreting the results
 
-| Recorded outcome group | Raw records | Prepared records |
-| --- | --- | --- |
-| Failed | 766 | 764 |
-| Passed | 324 | 323 |
-| Pending | 1,481 | 1,480 |
+The supervised task classifies **recorded outcomes**, rather than predicting a
+bill's fate at introduction. Some source texts and sponsor lists reflect later
+stages, and the dataset does not establish a common observation date for all
+outcomes. The source checks document later observations separately without
+replacing the baseline labels. See the
+[text-review findings](data/validation/README.md#using-the-text-review).
 
-These are source-recorded groups. The four-row reduction reflects
-deduplication, not an outcome update.
+Classifiers train on 2019–2024 bills and validate on 2025; the 2026 bills are
+saved for final testing. Notebook 06 also compares earlier-year folds. Small
+early folds, changing class proportions and related bill texts limit how far
+these results generalize. Topic patterns and model coefficients describe
+associations, not causes of legislative outcomes.
 
-| Field group | Count | Purpose |
-| --- | --- | --- |
-| Source fields | 29 | Retain source columns for each surviving record; `Sponsor_Party` is parsed as a list |
-| Cleaned text copies (`*_clean`) | 5 | Normalize Unicode and whitespace without replacing the original text |
-| Dates in year-month-day format | 2 | Compare available introduction and version dates |
-| `source_row` | 1 | Locate the record's one-based position in this raw snapshot |
-| Sponsor features | 8 | Describe party counts, sponsor totals, party ratios and bipartisan sponsorship |
-
-The [four-pair deduplication review](data/validation/deduplication_review.csv)
-maps each removed source row to the retained row. Within each pair, the source
-URLs encode the same bill identifier, although bill-number formatting and some
-metadata differ. This supports a same-bill interpretation within the file; it
-does not verify the records against the legislature. Keeping the last row is a
-position rule, not proof that its metadata are newer or more accurate.
-
-The prepared CSV serializes parsed `Sponsor_Party` lists differently from the raw
-CSV, for example `["R"]` becomes `['R']`. The raw file remains unchanged. Other
-source fields match the corresponding surviving rows in the checked output.
-The walkthrough and review table explain the retained rows and column changes.
-
-### Field roles
-
-These are available fields, not a prescribed feature set for either analysis.
-
-| Role | Fields | How to use them |
-| --- | --- | --- |
-| Text candidates | `Bill_Text_clean`, `Bill_Title_clean`, `NCSL_Summary_clean`, `summary_clean`, `bill_extracts_clean` | Select text appropriate to the question; summary and extract coverage differs from full text |
-| Recorded outcomes | `Bill_Status`, `Bill_Status_Grouped` | Source-snapshot labels; distinguish them from later dated observations |
-| Identity and timing | `Bill_Number`, `Jurisdiction`, `Year`, `Bill_URL`, `introduction_date_iso`, `version_date_iso` | Check identity and whether text timing fits the analysis |
-| Source locator | `source_row` | Reconnect a prepared row to this exact raw snapshot; not a model feature or unique-bill identifier |
-| Sponsor counts | `D_Count`, `R_Count`, `Other_Count`, `Unknown_Count` | Counts derived from parsed `Sponsor_Party` entries |
-| Sponsor totals and mix | `Total_Sponsors`, `Bipartisan_Support`, `Democrat_Sponsor_Ratio`, `Republican_Sponsor_Ratio` | Total entries, presence of both major parties, and party shares of all entries |
-| Publisher processing and annotations | `status`, `retry_attempts`, `analyst_results`, taxonomy score columns | Processing or publisher-generated classifications; `status` is not a legislative outcome |
-| Dated validation evidence | [data/validation/](data/validation/README.md) | Separate observations and comparison tables; not automatically substituted training labels |
-
-### Load the table
-
-From the repository root:
-
-```python
-import pandas as pd
-
-common = pd.read_csv(
-    "data/processed/common_intake/common_records.csv",
-    dtype=str,
-    keep_default_na=False,
-)
-```
-
-Blank cells remain empty strings.
-
-## Repository guide
-
-| File | Purpose |
-| --- | --- |
-| [data/raw/Final_Database.csv](data/raw/Final_Database.csv) | Preserved source snapshot |
-| [src/prepare.py](src/prepare.py) | Reusable shared preparation |
-| [notebooks/00_source_inspection.ipynb](notebooks/00_source_inspection.ipynb) | Initial raw-data preview and schema inspection |
-| [notebooks/01_data_preparation.ipynb](notebooks/01_data_preparation.ipynb) | Preparation walkthrough, text coverage and date/text review checks |
-| [notebooks/02_data_split_exploration.ipynb](notebooks/02_data_split_exploration.ipynb) | Supervised exploration of class balance, bill dates and time-based splits |
-| [notebooks/03_topic_analysis.ipynb](notebooks/03_topic_analysis.ipynb) | Topic models, figures and provision-level case review |
-| [src/topic_analysis.py](src/topic_analysis.py) | Helpers used by the topic notebook |
-| [notebooks/04_source_validation.ipynb](notebooks/04_source_validation.ipynb) | Offline outcome checks, a 20-bill text review and a raw-file header screen |
-| [notebooks/05_classification_baselines.ipynb](notebooks/05_classification_baselines.ipynb) | Logistic Regression, Linear SVM and XGBoost input comparisons |
-| [src/classification_helpers.py](src/classification_helpers.py) | Preprocessing, model fitting and comparison plots used by the baseline notebook |
-| [notebooks/06_model_evaluation.ipynb](notebooks/06_model_evaluation.ipynb) | Common temporal folds, majority-class baseline and traceable 2025 validation errors |
-| [data/validation/README.md](data/validation/README.md) | Dated observations, comparison tables, field definitions and source attribution |
-| [data/validation/deduplication_review.csv](data/validation/deduplication_review.csv) | Four removed-to-retained source-row pairs and their metadata differences |
-| [requirements.txt](requirements.txt) | Packages used by the committed script and notebooks |
+The notebooks contain the current results. Final model comparisons and the
+written report are still in progress.
 
 ## Related work
 
@@ -233,41 +204,11 @@ Blank cells remain empty strings.
   compare metadata and introduced bill text for federal committee survival,
   informing our input comparisons and attention to text versions.
 - [Nay (2017)](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0176999)
-  compares text, context and combined inputs for congressional enactment
-  using chronological evaluation.
+  compares text, context and combined inputs for congressional enactment using
+  chronological evaluation.
 - [Quinn and colleagues (2010)](https://doi.org/10.1111/j.1540-5907.2009.00427.x)
-  use topic modeling to study themes in U.S. Senate speeches. We use their
-  work as a comparison for our topic analysis of state AI bills.
+  use topic models to study U.S. Senate speeches, providing a comparison for
+  interpreting themes in our state-bill analysis.
 
-These studies concern different legislative populations and do not establish
-performance on our state AI corpus.
-
-## Text versions and outcome dates
-
-The [source-validation notebook](notebooks/04_source_validation.ipynb) separates
-recorded dates from text-stage evidence. In the 20-bill review, nine source
-headers identify later stages. Matching the introduction date does not prove
-that the deposited text is the introduced version. The notebook also screens
-all raw headers; an unrecognized header remains unknown.
-
-We keep the original table and recorded outcomes for the initial retrospective
-comparison. The source does not establish one observation date for every outcome.
-The review flags are evidence for input checks, not model features or automatic
-row exclusions. See the [input and cutoff recommendations](data/validation/README.md#using-the-text-review)
-before changing text or labels.
-
-## Scope and next stages
-
-Our shared preparation keeps records with blank summaries or extracts and
-flags date differences. It removes repeated cleaned bill text and adds eight
-sponsor features.
-
-Our supervised and topic analyses use the records, text features, splits and
-methods suited to each question. We document these choices and results in
-the corresponding notebooks.
-
-We are keeping the source outcomes for the initial baseline. Any comparison
-using updated outcomes will need a consistent observation date and outcome
-definition. The dated source checks stay separate from the prepared inputs.
-
-We will link our findings and final report here.
+These studies concern different legislative populations; their results do not
+establish performance on our dataset.
