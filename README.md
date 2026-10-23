@@ -55,7 +55,7 @@ The lowercase `status` field describes publisher processing, not a bill outcome.
 ## Quickstart
 
 Run these commands from the repository root, using Python with pip.
-All six notebooks ran successfully with Python 3.12.
+The notebooks use Python 3.12.
 
 Create a project environment first:
 
@@ -70,6 +70,7 @@ Activate it with `.venv\Scripts\Activate.ps1` in PowerShell, or
 
 ```shell
 python -m pip install -r requirements.txt
+python -m ipykernel install --sys-prefix --name state-ai-policy --display-name "State AI Policy"
 ```
 
 ### 2. Prepare the shared data
@@ -87,20 +88,57 @@ Generated tables are excluded from Git; each teammate runs this step locally.
 python -m jupyter lab
 ```
 
-Select the project environment's Python kernel. Run each notebook from top to
-bottom, in numbered order from `00` through `05`. Notebook `01` regenerates the
+Select the **State AI Policy** kernel. Run each notebook from top to
+bottom, in numbered order from `00` through `06`. Notebook `01` regenerates the
 shared table and checks which records fall within the current split windows.
 Notebooks `02`, `03` and `05` read that prepared table. Notebook `04` reviews
 the saved source evidence offline; no API key is needed for these runs.
 
-For a command-line run of all six notebooks:
+Notebook `06` adds expanding-year cross-validation, a majority-class reference
+and 2025 validation error examples. It keeps the 2026 test cohort untouched.
+
+For a command-line run of all seven notebooks:
 
 ```shell
-python -m jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.timeout=1800 "notebooks/*.ipynb"
+python -m jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.kernel_name=state-ai-policy --ExecutePreprocessor.timeout=1800 "notebooks/*.ipynb"
 ```
 
 This refreshes notebook outputs locally. Topic and classification runs can
 take several minutes. Generated tables and topic exports remain outside Git.
+
+### Add topic features to a classification experiment
+
+In notebook `05`, pass `topic_method="nmf"` or `topic_method="lda"` to an
+existing `run_experiment` call. This example uses the notebook's data and settings:
+
+```python
+topic_run = ch.run_experiment(
+    model_type="linear_svm",
+    feature_set="metadata",
+    train_df=train_df,
+    val_df=val_df,
+    target=TARGET,
+    feature_groups=FEATURE_GROUPS,
+    feature_sets=FEATURE_SETS,
+    tfidf_params=TFIDF_PARAMS,
+    topic_method="nmf",
+    topic_components=8,
+)
+pd.DataFrame([topic_run["metrics"]]).round(4)
+```
+
+The pipeline learns vocabulary and topics from `NCSL_Summary_clean` in the
+training records, then transforms validation records. Compare it with the
+matching baseline on the same rows and folds. Existing calls without
+`topic_method` keep their original behavior.
+
+NMF uses TF-IDF and LDA uses counts. Both supervised topic branches use the
+English and legal stopwords, unigrams/bigrams and eight components by default; this
+LDA vocabulary differs from the English-only descriptive LDA baseline.
+Nonzero topic-weight rows are normalized to sum one. Topic numbers belong to
+that fitted training model and do not inherit the descriptive model's names.
+Keep the full-corpus topic exports for descriptive analysis rather than
+joining them into held-out classifier inputs.
 
 ## Prepared data
 
@@ -183,6 +221,7 @@ Blank cells remain empty strings.
 | [notebooks/04_source_validation.ipynb](notebooks/04_source_validation.ipynb) | Offline outcome checks, a 20-bill text review and a raw-file header screen |
 | [notebooks/05_classification_baselines.ipynb](notebooks/05_classification_baselines.ipynb) | Logistic Regression, Linear SVM and XGBoost input comparisons |
 | [src/classification_helpers.py](src/classification_helpers.py) | Preprocessing, model fitting and comparison plots used by the baseline notebook |
+| [notebooks/06_model_evaluation.ipynb](notebooks/06_model_evaluation.ipynb) | Common temporal folds, majority-class baseline and traceable 2025 validation errors |
 | [data/validation/README.md](data/validation/README.md) | Dated observations, comparison tables, field definitions and source attribution |
 | [data/validation/deduplication_review.csv](data/validation/deduplication_review.csv) | Four removed-to-retained source-row pairs and their metadata differences |
 | [requirements.txt](requirements.txt) | Packages used by the committed script and notebooks |

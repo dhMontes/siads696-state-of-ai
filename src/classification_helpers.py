@@ -4,7 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import (
+    CountVectorizer, TfidfVectorizer, ENGLISH_STOP_WORDS,
+)
+from sklearn.decomposition import NMF, LatentDirichletAllocation
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
 from sklearn.base import clone
@@ -13,7 +16,8 @@ from sklearn.preprocessing import (
     OneHotEncoder,
     StandardScaler,
     FunctionTransformer,
-    LabelEncoder
+    LabelEncoder,
+    Normalizer,
 )
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
@@ -26,6 +30,7 @@ from sklearn.metrics import (
 
 
 from xgboost import XGBClassifier
+from .topic_analysis import TEXT, VECTOR_SETTINGS, LEGAL_STOPWORDS
 
 RANDOM_STATE = 42
 
@@ -39,8 +44,14 @@ def create_preprocessor(
     feature_groups,
     feature_sets,
     tfidf_params=None,
+    topic_method=None,
+    topic_components=8,
 ):
-    """Create preprocessing for any supported model/feature set."""
+    """Create preprocessing, optionally adding training-fitted summary topics.
+
+    Both topic variants use the refined legal stopwords. The LDA feature
+    variant therefore differs from the English-only exploratory LDA baseline.
+    """
 
     if feature_set not in feature_sets:
         raise ValueError(f"Unknown feature set: {feature_set}")
@@ -49,6 +60,9 @@ def create_preprocessor(
         "logistic_regression", "linear_svm", "xgboost"
     }:
         raise ValueError(f"Unknown model: {model_type}")
+
+    if topic_method not in {None, "nmf", "lda"}:
+        raise ValueError(f"Unknown topic method: {topic_method}")
 
     is_tree_model = model_type == "xgboost"
 
@@ -107,7 +121,7 @@ def create_preprocessor(
                 fill_value=""
             )),
             ("flatten", FunctionTransformer(
-                flatten_text, validate=False
+                flatten_text, validate=False, feature_names_out="one-to-one"
             )),
             ("tfidf", TfidfVectorizer(
                 **(tfidf_params or {})
@@ -117,6 +131,34 @@ def create_preprocessor(
         transformers.append(
             ("text", text_transformer, [text_column])
         )
+
+    if topic_method is not None:
+        vectorizer = TfidfVectorizer if topic_method == "nmf" else CountVectorizer
+        if topic_method == "nmf":
+            topic_model = NMF(
+                n_components=topic_components, init="nndsvda",
+                random_state=RANDOM_STATE, max_iter=500,
+            )
+        else:
+            topic_model = LatentDirichletAllocation(
+                n_components=topic_components, learning_method="batch",
+                random_state=RANDOM_STATE, max_iter=30,
+                evaluate_every=5, n_jobs=1,
+            )
+
+        topic_transformer = Pipeline([
+            ("imputer", SimpleImputer(strategy="constant", fill_value="")),
+            ("flatten", FunctionTransformer(
+                flatten_text, validate=False, feature_names_out="one-to-one"
+            )),
+            ("vectorizer", vectorizer(
+                stop_words=sorted(set(ENGLISH_STOP_WORDS) | set(LEGAL_STOPWORDS)),
+                **VECTOR_SETTINGS,
+            )),
+            ("model", topic_model),
+            ("normalize", Normalizer(norm="l1")),
+        ])
+        transformers.append(("topics", topic_transformer, [TEXT]))
 
     return ColumnTransformer(
         transformers=transformers,
@@ -191,6 +233,8 @@ def create_pipeline(
     tfidf_params=None,
     model_params=None,
     n_classes=None,
+    topic_method=None,
+    topic_components=8,
 ):
     """Build an unfitted, end-to-end sklearn pipeline."""
 
@@ -200,6 +244,8 @@ def create_pipeline(
         feature_groups=feature_groups,
         feature_sets=feature_sets,
         tfidf_params=tfidf_params,
+        topic_method=topic_method,
+        topic_components=topic_components,
     )
 
     classifier = create_model(
@@ -283,6 +329,8 @@ def run_experiment(
     tfidf_params=None,
     model_params=None,
     positive_class="Passed",
+    topic_method=None,
+    topic_components=8,
 ):
     """Train and evaluate one classification experiment."""
 
@@ -297,6 +345,9 @@ def run_experiment(
 
     if text_column is not None:
         features.append(text_column)
+
+    if topic_method is not None:
+        features.append(TEXT)
 
     features = list(dict.fromkeys(features))
 
@@ -326,6 +377,8 @@ def run_experiment(
         tfidf_params=tfidf_params,
         model_params=model_params,
         n_classes=n_classes,
+        topic_method=topic_method,
+        topic_components=topic_components,
     )
 
     pipeline.fit(X_train, y_train_fit)
@@ -349,6 +402,9 @@ def run_experiment(
         val_pred=val_pred,
         positive_class=positive_class,
     )
+
+    if topic_method is not None:
+        results["Topic_Method"] = topic_method
 
     # 6. Return everything needed for analysis
     return {

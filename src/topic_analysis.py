@@ -432,7 +432,8 @@ def group_share_tables(work, W, out, prefix):
     return tables
 
 
-def leading_word_chart(model, vectorizer, names, title, path, n=12):
+def leading_word_chart(model, vectorizer, names, title, path, n=12,
+                       weight_label="NMF component weight (relative within topic; not a probability)"):
     """Small multiples of each topic's top terms; one hue because bars share one meaning."""
     import textwrap
     terms = vectorizer.get_feature_names_out()
@@ -452,7 +453,7 @@ def leading_word_chart(model, vectorizer, names, title, path, n=12):
         for side in ["top", "right"]:
             ax.spines[side].set_visible(False)
     fig.suptitle(title, x=.01, ha="left", fontsize=12)
-    fig.supxlabel("NMF component weight (relative within topic; not a probability)", fontsize=9, color="#52514e")
+    fig.supxlabel(weight_label, fontsize=9, color="#52514e")
     fig.tight_layout()
     fig.savefig(path, dpi=160, bbox_inches="tight")
     return fig
