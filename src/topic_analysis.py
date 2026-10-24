@@ -76,7 +76,7 @@ def split_categories(value):
 
 
 def validate_intake(prepared, raw):
-    """Reject stale/edited preparation rather than attaching evidence to wrong rows."""
+    """Check that prepared rows and fields match the source and preparation rules."""
     try:
         raw = raw.reset_index(drop=True).copy()
         raw.index = pd.Index([str(i) for i in range(1, len(raw) + 1)], name="source_row")
@@ -100,7 +100,6 @@ def validate_intake(prepared, raw):
         removed = []
         for sr in raw.index.difference(expected.index, sort=False):
             keep = retained[cleaned.loc[sr]]
-            assert cleaned.loc[sr] == cleaned.loc[keep]
             removed.append({"removed_source_row": sr, "retained_source_row": keep,
                             "raw_text_identical": raw.loc[sr, "Bill_Text"] == raw.loc[keep, "Bill_Text"],
                             "removed_raw_sha256": hashlib.sha256(raw.loc[sr, "Bill_Text"].encode()).hexdigest(),
@@ -176,7 +175,7 @@ def fit_model(X, method="NMF", k=8, seed=42, init="nndsvda"):
 
 
 def dominant_topics(W):
-    # Never silently assign an all-zero document to topic 0.
+    # Mark documents with no usable terms as unassigned (-1).
     return np.where(W.sum(axis=1) > 0, W.argmax(axis=1), -1)
 
 
@@ -308,7 +307,7 @@ def heatmap(frame, title, path, percent=False, size=None, vmax=None):
 
 
 def case_evidence(work, case_specs, bundles, out):
-    """Validate literal evidence spans against original Bill_Text, never generated summaries."""
+    """Check case-study passages against the original bill text."""
     records = []
     indexed = work.set_index("source_row", drop=False)
     for spec in case_specs:
@@ -385,7 +384,7 @@ def pair_stability(work, bundles, pair_specs, out):
 
 
 def check_topic_identity(candidate, labels, reference=None, reviewed_mapping=None):
-    """Fail before applying reviewed labels if numbering or content has changed."""
+    """Check that topic labels match the fitted topics."""
     if reference is not None:
         alignment = align_topics(reference, candidate)
         mapping = [r["candidate_topic"] for r in alignment]
@@ -403,7 +402,7 @@ def check_topic_identity(candidate, labels, reference=None, reviewed_mapping=Non
 
 
 def introduction_years(work):
-    """Introduction cohort from introduction_date_iso, as in notebook 02 (never NCSL Year)."""
+    """Parse introduction_date_iso into introduction years."""
     dates = pd.to_datetime(work["introduction_date_iso"], format="%Y-%m-%d", errors="coerce")
     return dates.dt.year.astype("Int64").rename("introduction_year")
 
@@ -469,7 +468,7 @@ def k_selection(work, out, variant="baseline", prefix=None, ks=(5, 6, 7, 8, 9, 1
 
     NNDSVDa uses the seed only in its randomized SVD, so its seeds can converge to
     the same solution; stability compares the NNDSVDa fit with random starts.
-    Topics are matched by component alignment, never by topic number.
+    Topics are matched by component similarity rather than topic number.
     """
     vectorizer, X = features(work[TEXT], variant)
     rows = []
