@@ -1,8 +1,5 @@
-# Generated source-containing tables and local review decisions
+# Generated data
 /data/processed/
-/data/review/
-/data/private_review/
-/josue_src/output/
 # Local Python and notebook runtime files
 .venv/
 __pycache__/
