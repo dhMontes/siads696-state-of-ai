@@ -138,7 +138,7 @@ common = pd.read_csv(
 | [03 · Topic analysis](notebooks/03_topic_analysis.ipynb) | NMF and LDA models, figures and bill-text examples |
 | [04 · Source validation](notebooks/04_source_validation.ipynb) | Selected outcome checks, text-version review and raw-header screening |
 | [05 · Classification baselines](notebooks/05_classification_baselines.ipynb) | Logistic Regression, Linear SVM and XGBoost input comparisons |
-| [06 · Model evaluation](notebooks/06_model_evaluation.ipynb) | Temporal cross-validation, prediction errors, SVM settings and feature comparisons |
+| [06 · Model evaluation](notebooks/06_model_evaluation.ipynb) | Matched classifier and input comparisons, topic features, related-text sensitivity and SVM errors |
 
 Reusable functions are in [src/topic_analysis.py](src/topic_analysis.py) and
 [src/classification_helpers.py](src/classification_helpers.py). Dependencies
@@ -195,8 +195,8 @@ early folds, changing class proportions and related bill texts limit how far
 these results generalize. Topic patterns and model coefficients describe
 associations, not causes of legislative outcomes.
 
-The notebooks contain the current results. Final model comparisons and the
-written report are still in progress.
+The notebooks contain the current comparisons. Final model selection, the
+2026 evaluation and the written report are still in progress.
 
 ## Related work
 
