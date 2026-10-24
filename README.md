@@ -145,40 +145,12 @@ Reusable functions are in [src/topic_analysis.py](src/topic_analysis.py) and
 are listed in [requirements.txt](requirements.txt). Dated source checks and
 their definitions are documented in [data/validation/](data/validation/README.md).
 
-<details>
-<summary>Add NMF or LDA features to a classifier</summary>
-
-In notebook 05, add `topic_method="nmf"` or `topic_method="lda"` to an existing
-`run_experiment` call. This example uses that notebook's data and settings:
-
-```python
-topic_run = ch.run_experiment(
-    model_type="linear_svm",
-    feature_set="metadata",
-    train_df=train_df,
-    val_df=val_df,
-    target=TARGET,
-    feature_groups=FEATURE_GROUPS,
-    feature_sets=FEATURE_SETS,
-    tfidf_params=TFIDF_PARAMS,
-    topic_method="nmf",
-    topic_components=8,
-)
-pd.DataFrame([topic_run["metrics"]]).round(4)
-```
-
-The pipeline fits vocabulary and topics on training bills using
-`NCSL_Summary_clean`, then transforms validation bills. Compare with a baseline
-using the same records and folds. Calls without `topic_method` use the original
-inputs.
-
-NMF uses TF-IDF; LDA uses word counts. Both classifier options use English and
-legal stopwords and eight topics by default. The descriptive LDA model uses
-English stopwords only, so its vocabulary differs. Topic numbers are specific
-to each fitted model. The full-corpus descriptive topic exports include held-out
-bills and are not used as classifier inputs.
-
-</details>
+[Notebook 06](notebooks/06_model_evaluation.ipynb) compares classifier inputs
+with and without NMF/LDA summary topics. Vocabulary and topics fit on training
+bills inside each pipeline, then transform validation bills. NMF uses TF-IDF;
+LDA uses word counts. Both use English and legal stopwords and eight topics.
+The descriptive LDA model in notebook 03 uses English stopwords only, so its
+vocabulary differs. Its full-corpus topic exports are not classifier inputs.
 
 ## Interpreting the results
 
