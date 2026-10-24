@@ -211,8 +211,13 @@ def topic_metrics(X, model):
         for a, b in combinations(topic, 2):
             i, j = lookup[int(a)], lookup[int(b)]
             p = cooccurrence[i, j]
-            scores.append(-1.0 if p == 0 else (0.0 if p == 1 else
-                          np.log(p / (frequencies[i] * frequencies[j])) / -np.log(p)))
+            if p == 0:
+                score = -1.0
+            elif p == 1:
+                score = 0.0
+            else:
+                score = np.log(p / (frequencies[i] * frequencies[j])) / -np.log(p)
+            scores.append(score)
         npmi.append(float(np.mean(scores)))
     sets = [set(x.tolist()) for x in top]
     overlap = [len(a & b) / len(a | b) for a, b in combinations(sets, 2)]
@@ -637,7 +642,7 @@ def outcome_chart(table, overall, title, path):
 
 
 def bill_families(work, W, names, out, threshold=.5, min_states=4, thresholds=(.5, .6, .7)):
-    """Post hoc: groups of near-identical full texts introduced in several states.
+    """Post hoc: connected full-text similarity groups across states.
 
     Full texts are compared with word 1-3-gram TF-IDF cosine. Bills from different
     jurisdictions at or above `threshold` are linked; linked groups (single

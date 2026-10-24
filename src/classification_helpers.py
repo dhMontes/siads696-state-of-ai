@@ -10,7 +10,6 @@ from sklearn.feature_extraction.text import (
 from sklearn.decomposition import NMF, LatentDirichletAllocation
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
-from sklearn.base import clone
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import (
     OneHotEncoder,
