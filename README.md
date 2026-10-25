@@ -180,7 +180,8 @@ replacing the baseline labels. See the
 Classifiers train on 2019–2024 bills and validate on 2025; the 2026 bills are
 saved for final testing. Notebook 06 also compares earlier-year folds. Small
 early folds, changing class proportions and related bill texts limit how far
-these results generalize. Topic patterns and model coefficients describe
+these results generalize. Chronological splits do not guarantee that related
+bills stay together; the text-similarity check is a separate sensitivity analysis. Topic patterns and model coefficients describe
 associations, not causes of legislative outcomes.
 
 The notebooks contain the current comparisons. Final model selection, the
