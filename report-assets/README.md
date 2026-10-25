@@ -2,8 +2,9 @@
 
 Selected figures and tables from [topic analysis](../notebooks/03_topic_analysis.ipynb)
 and [classifier evaluation](../notebooks/06_model_evaluation.ipynb), ready to download
-for the report. Classifier results cover historical folds and 2025 development;
-they do not include 2026 test scores.
+for the report. The classifier comparisons cover historical folds and 2025
+development. The separate [final evaluation](../notebooks/07_final_evaluation.ipynb)
+assets report the selected classifier's results on 2026 bills.
 
 ## Figures
 
@@ -38,6 +39,25 @@ classifier inputs.
   explains the count choices and the stronger metrics at some other counts;
   this table does not present a separately optimized model for each method.
 
+## Final 2026 evaluation
+
+These exports come from [notebook 07](../notebooks/07_final_evaluation.ipynb),
+which trains the selected classifier on 2019–2025 bills and evaluates it on
+2026 bills. The notebook records the selected inputs, settings and fixed split.
+These are retrospective classifications of published outcome labels, not
+predictions made when bills were introduced.
+
+| File | Content | Source export |
+| --- | --- | --- |
+| [final_scores.csv](final_scores.csv) | Accuracy, balanced accuracy and macro F1 for the selected model and the training-majority reference, with train and test record counts | `scores.csv` in notebook 07 |
+| [final_classification_report.csv](final_classification_report.csv) | Precision, recall, F1 and support for Failed, Passed and Pending outcomes | `classification_report.csv` in notebook 07 |
+| [final_confusion_matrix.png](final_confusion_matrix.png) | Recorded versus predicted 2026 outcomes for the selected classifier | `confusion_matrix.png` in notebook 07 |
+
+The majority reference always predicts the most common training outcome and
+uses the same test records as the selected model. The final test scores do not
+replace the historical and development comparisons above. They measure the
+selected configuration on the reserved year and are not used to choose new settings.
+
 ## Refresh the figures and tables
 
 After following the root [setup instructions](../README.md#setup-and-running-the-project),
@@ -45,13 +65,19 @@ run these notebooks from the repository root:
 
 ```shell
 python -m jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.kernel_name=state-ai-policy --ExecutePreprocessor.timeout=1800 notebooks/03_topic_analysis.ipynb notebooks/06_model_evaluation.ipynb
+python -m jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.kernel_name=state-ai-policy --ExecutePreprocessor.timeout=1800 notebooks/07_final_evaluation.ipynb
 python src/export_report_assets.py
 ```
 
 Notebook 03 writes to `outputs/topic_analysis/`; notebook 06 writes to
-`outputs/model_evaluation/`. The figures above are unchanged copies of
-those exports. The historical-family table is an unchanged CSV copy; the topic
+`outputs/model_evaluation/`; notebook 07 writes to `outputs/final_evaluation/`.
+The figures above are unchanged copies of those exports. The historical-family
+and final-evaluation tables are unchanged CSV copies; the topic
 table keeps the three stated runs and the seven columns shown in its header.
 The notebooks contain the full comparisons, sensitivity checks and definitions.
-The export script copies the selected figures and historical table, then filters
-the topic comparison to the three runs and seven columns described above.
+The export script copies the selected figures, historical table and final tables,
+then filters the topic comparison to the three runs and seven columns described above.
+
+Sources: [notebook 03](../notebooks/03_topic_analysis.ipynb),
+[notebook 06](../notebooks/06_model_evaluation.ipynb) and
+[notebook 07](../notebooks/07_final_evaluation.ipynb).
