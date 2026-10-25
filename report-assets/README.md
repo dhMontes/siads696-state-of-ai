@@ -33,7 +33,10 @@ classifier inputs.
   NMF, refined NMF and baseline LDA runs with eight topics and seed 42 from
   notebook 03's `model_comparison.csv`. It retains the source run IDs, vocabulary
   variants, NPMI coherence, term diversity and mean topic overlap. Higher coherence
-  and diversity and lower overlap are preferable under these measures.
+  and diversity and lower overlap are preferable under these measures. The
+  eight-topic rows compare the methods at the same size. Notebook 03, section 4,
+  explains the count choices and the stronger metrics at some other counts;
+  this table does not present a separately optimized model for each method.
 
 ## Regenerate the source exports
 
