@@ -9,6 +9,12 @@ Linear SVM and XGBoost classifiers.
 
 [Data](#data) · [Setup](#setup-and-running-the-project) · [Notebooks](#notebooks) · [Report assets](report-assets/README.md) · [Limitations](#interpreting-the-results) · [Related work](#related-work)
 
+To review the analyses, start with [03 · Topic analysis](notebooks/03_topic_analysis.ipynb)
+and [06 · Model evaluation](notebooks/06_model_evaluation.ipynb). The
+[report assets](report-assets/README.md) contain selected figures and tables.
+[07 · Final evaluation](notebooks/07_final_evaluation.ipynb) is the workflow for
+the team's chosen configuration; its 2026 evaluation has not been run.
+
 ## Workflow
 
 ```text
@@ -92,11 +98,13 @@ python src/prepare.py
 python -m jupyter lab
 ```
 
-Select the **State AI Policy** kernel and run each notebook from top to bottom,
-in numbered order. The source-validation notebook uses saved evidence and runs
-offline; no API key is needed to reproduce the notebooks.
+Select the **State AI Policy** kernel and run an opened notebook from top to bottom.
+After `prepare.py`, notebooks 03 and 06 can each run independently. The supporting
+notebooks in the table below document inspection, preparation and validation;
+they are not prerequisites for those two analyses. The source-validation
+notebook uses saved evidence and runs offline; no API key is needed.
 
-To execute the notebooks from the command line:
+Optional: to execute the full collection, including the supporting notebooks:
 
 ```shell
 python -m jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.kernel_name=state-ai-policy --ExecutePreprocessor.timeout=1800 "notebooks/*.ipynb"
@@ -133,16 +141,16 @@ common = pd.read_csv(
 
 ## Notebooks
 
-| Notebook | Contents |
-| --- | --- |
-| [00 · Source inspection](notebooks/00_source_inspection.ipynb) | Raw-data preview, columns and types |
-| [01 · Data preparation](notebooks/01_data_preparation.ipynb) | Shared preparation, text coverage, date checks and split eligibility |
-| [02 · Split exploration](notebooks/02_data_split_exploration.ipynb) | Class balance and introduction-year splits |
-| [03 · Topic analysis](notebooks/03_topic_analysis.ipynb) | NMF and LDA models, figures and bill-text examples |
-| [04 · Source validation](notebooks/04_source_validation.ipynb) | Selected outcome checks, text-version review and raw-header screening |
-| [05 · Classification baselines](notebooks/05_classification_baselines.ipynb) | Logistic Regression, Linear SVM and XGBoost input comparisons |
-| [06 · Model evaluation](notebooks/06_model_evaluation.ipynb) | Matched classifier and input comparisons, topic features, related-text sensitivity and SVM errors |
-| [07 · Final evaluation](notebooks/07_final_evaluation.ipynb) | One selected configuration trained through 2025 and evaluated on 2026 |
+| Notebook | Role | Contents |
+| --- | --- | --- |
+| [00 · Source inspection](notebooks/00_source_inspection.ipynb) | Supporting | Raw-data preview, columns and types |
+| [01 · Data preparation](notebooks/01_data_preparation.ipynb) | Supporting | Shared preparation, text coverage, date checks and split eligibility |
+| [02 · Split exploration](notebooks/02_data_split_exploration.ipynb) | Supporting | Class balance and introduction-year splits |
+| [03 · Topic analysis](notebooks/03_topic_analysis.ipynb) | Core analysis | NMF and LDA models, figures and bill-text examples |
+| [04 · Source validation](notebooks/04_source_validation.ipynb) | Supporting | Selected outcome checks, text-version review and raw-header screening |
+| [05 · Classification baselines](notebooks/05_classification_baselines.ipynb) | Supporting | Logistic Regression, Linear SVM and XGBoost input comparisons |
+| [06 · Model evaluation](notebooks/06_model_evaluation.ipynb) | Core analysis | Matched classifier and input comparisons, topic features, related-text sensitivity and SVM errors |
+| [07 · Final evaluation](notebooks/07_final_evaluation.ipynb) | Final workflow | One selected configuration trained through 2025 and evaluated on 2026 |
 
 Reusable functions are in [src/topic_analysis.py](src/topic_analysis.py) and
 [src/classification_helpers.py](src/classification_helpers.py). Dependencies
