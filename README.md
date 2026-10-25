@@ -34,6 +34,18 @@ the team's chosen configuration; its 2026 evaluation has not been run.
 Both analyses use the same prepared table, with additional filtering and
 features chosen for each analysis.
 
+## Repository layout
+
+| Folder | Purpose |
+| --- | --- |
+| `data/raw/` | Original published CSV |
+| `data/validation/` | Saved source checks and their definitions |
+| `data/processed/` | Generated prepared tables used by the notebooks |
+| `notebooks/` | Analyses with saved results, plus topic labels and reviewed examples |
+| `src/` | Preparation, reusable analysis functions and report-asset export |
+| `outputs/` | Generated topic, model-comparison and final-evaluation results |
+| `report-assets/` | Selected figures and tables included in Git for easy download |
+
 ## Data
 
 Our source is Bhargava and Soliman's
@@ -72,6 +84,7 @@ from the preparation script.
 ## Setup and running the project
 
 Use Python 3.12 and run commands from the repository root.
+`requirements.txt` records the tested package versions.
 
 ### 1. Create and activate an environment
 
@@ -113,15 +126,27 @@ python -m jupyter nbconvert --execute --to notebook --inplace --ExecutePreproces
 Model runs can take several minutes. This command replaces the saved notebook
 outputs in your local copy.
 
+### 4. Refresh the report figures and tables
+
+After running notebooks 03 and 06:
+
+```shell
+python src/export_report_assets.py
+```
+
+This updates the six figures and two tables in `report-assets/` from the
+generated results. Their sources and meanings are listed in the
+[report-assets guide](report-assets/README.md).
+
 ### Generated files
 
 | Location | Contents |
 | --- | --- |
-| `data/processed/common_intake/common_records.csv` | Shared prepared table from `prepare.py` |
-| `data/processed/common_intake/analysis_rows.csv` | Notebook 01's record checks and split eligibility |
+| `data/processed/common_records.csv` | Shared prepared table from `prepare.py` |
+| `data/processed/analysis_rows.csv` | Notebook 01's record checks and split eligibility |
 | `outputs/topic_analysis/` | Topic tables and figures |
-| `data/processed/model_evaluation/` | Evaluation tables and figures |
-| `data/processed/final_evaluation/` | Final scores, predictions and settings after selecting a configuration in notebook 07 |
+| `outputs/model_evaluation/` | Evaluation tables and figures |
+| `outputs/final_evaluation/` | Final scores, predictions and settings after selecting a configuration in notebook 07 |
 
 These outputs are excluded from Git and regenerated locally.
 Selected existing figures and tables are also available in
@@ -133,7 +158,7 @@ To load the prepared table while preserving blank cells as empty strings:
 import pandas as pd
 
 common = pd.read_csv(
-    "data/processed/common_intake/common_records.csv",
+    "data/processed/common_records.csv",
     dtype=str,
     keep_default_na=False,
 )

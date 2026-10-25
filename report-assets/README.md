@@ -38,18 +38,20 @@ classifier inputs.
   explains the count choices and the stronger metrics at some other counts;
   this table does not present a separately optimized model for each method.
 
-## Regenerate the source exports
+## Refresh the figures and tables
 
 After following the root [setup instructions](../README.md#setup-and-running-the-project),
 run these notebooks from the repository root:
 
 ```shell
 python -m jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.kernel_name=state-ai-policy --ExecutePreprocessor.timeout=1800 notebooks/03_topic_analysis.ipynb notebooks/06_model_evaluation.ipynb
+python src/export_report_assets.py
 ```
 
 Notebook 03 writes to `outputs/topic_analysis/`; notebook 06 writes to
-`data/processed/model_evaluation/`. The figures above are unchanged copies of
+`outputs/model_evaluation/`. The figures above are unchanged copies of
 those exports. The historical-family table is an unchanged CSV copy; the topic
 table keeps the three stated runs and the seven columns shown in its header.
 The notebooks contain the full comparisons, sensitivity checks and definitions.
-To refresh these copies, replace them with the regenerated files listed above.
+The export script copies the selected figures and historical table, then filters
+the topic comparison to the three runs and seven columns described above.

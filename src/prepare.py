@@ -10,7 +10,7 @@ import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SOURCE = PROJECT_ROOT / "data" / "raw" / "Final_Database.csv"
-DEFAULT_OUTPUT = PROJECT_ROOT / "data" / "processed" / "common_intake" / "common_records.csv"
+DEFAULT_OUTPUT = PROJECT_ROOT / "data" / "processed" / "common_records.csv"
 TEXT_COLUMNS = (
     "Bill_Text",
     "Bill_Title",
