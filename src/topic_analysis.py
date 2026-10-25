@@ -112,7 +112,7 @@ def validate_intake(prepared, raw):
 
 
 def load_common(root):
-    path = Path(root) / "data/processed/common_intake/common_records.csv"
+    path = Path(root) / "data/processed/common_records.csv"
     df = pd.read_csv(path, dtype=str, keep_default_na=False)
     required = [TEXT, "NCSL_Category", "Bill_Text", "summary", "Bill_URL", "Version_Date",
                 "Bill_Status", *IDENTIFIERS]
