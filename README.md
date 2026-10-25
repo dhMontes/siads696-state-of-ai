@@ -119,7 +119,7 @@ outputs in your local copy.
 | --- | --- |
 | `data/processed/common_intake/common_records.csv` | Shared prepared table from `prepare.py` |
 | `data/processed/common_intake/analysis_rows.csv` | Notebook 01's record checks and split eligibility |
-| `outputs/topic_analysis/` | Topic tables, figures and model objects |
+| `outputs/topic_analysis/` | Topic tables and figures |
 | `data/processed/model_evaluation/` | Evaluation tables and figures |
 | `data/processed/final_evaluation/` | Final scores, predictions and settings after selecting a configuration in notebook 07 |
 
