@@ -7,7 +7,7 @@ across states and the bill information associated with recorded outcomes.
 The project combines NMF and LDA topic models with Logistic Regression,
 Linear SVM and XGBoost classifiers.
 
-[Data](#data) · [Setup](#setup-and-running-the-project) · [Notebooks](#notebooks) · [Limitations](#interpreting-the-results) · [Related work](#related-work)
+[Data](#data) · [Setup](#setup-and-running-the-project) · [Notebooks](#notebooks) · [Report assets](report-assets/README.md) · [Limitations](#interpreting-the-results) · [Related work](#related-work)
 
 ## Workflow
 
@@ -96,7 +96,7 @@ Select the **State AI Policy** kernel and run each notebook from top to bottom,
 in numbered order. The source-validation notebook uses saved evidence and runs
 offline; no API key is needed to reproduce the notebooks.
 
-To execute all seven notebooks from the command line:
+To execute the notebooks from the command line:
 
 ```shell
 python -m jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.kernel_name=state-ai-policy --ExecutePreprocessor.timeout=1800 "notebooks/*.ipynb"
@@ -113,8 +113,11 @@ outputs in your local copy.
 | `data/processed/common_intake/analysis_rows.csv` | Notebook 01's record checks and split eligibility |
 | `outputs/topic_analysis/` | Topic tables, figures and model objects |
 | `data/processed/model_evaluation/` | Evaluation tables and figures |
+| `data/processed/final_evaluation/` | Final scores, predictions and settings after selecting a configuration in notebook 07 |
 
 These outputs are excluded from Git and regenerated locally.
+Selected existing figures and tables are also available in
+[report-assets/](report-assets/README.md) for report assembly.
 
 To load the prepared table while preserving blank cells as empty strings:
 
@@ -139,6 +142,7 @@ common = pd.read_csv(
 | [04 · Source validation](notebooks/04_source_validation.ipynb) | Selected outcome checks, text-version review and raw-header screening |
 | [05 · Classification baselines](notebooks/05_classification_baselines.ipynb) | Logistic Regression, Linear SVM and XGBoost input comparisons |
 | [06 · Model evaluation](notebooks/06_model_evaluation.ipynb) | Matched classifier and input comparisons, topic features, related-text sensitivity and SVM errors |
+| [07 · Final evaluation](notebooks/07_final_evaluation.ipynb) | One selected configuration trained through 2025 and evaluated on 2026 |
 
 Reusable functions are in [src/topic_analysis.py](src/topic_analysis.py) and
 [src/classification_helpers.py](src/classification_helpers.py). Dependencies
@@ -151,6 +155,10 @@ bills inside each pipeline, then transform validation bills. NMF uses TF-IDF;
 LDA uses word counts. Both use English and legal stopwords and eight topics.
 The descriptive LDA model in notebook 03 uses English stopwords only, so its
 vocabulary differs. Its full-corpus topic exports are not classifier inputs.
+
+In notebook 07, enter the team's chosen configuration before running the final
+evaluation. With no configuration selected, the notebook skips fitting and scoring.
+Choose the settings from the development comparisons before evaluating 2026.
 
 ## Interpreting the results
 

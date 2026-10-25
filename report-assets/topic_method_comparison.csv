@@ -1,0 +1,4 @@
+run_id,method,variant,topics,document_npmi_top12,top12_term_diversity,mean_top12_jaccard
+nmf_baseline_k8_seed42_nndsvda,NMF,baseline,8,0.15998701586613698,0.8854166666666666,0.0235742518351214
+nmf_legal_k8_seed42_nndsvda,NMF,legal,8,0.21098859554596686,0.8958333333333334,0.025711865773977573
+lda_baseline_k8_seed42_batch,LDA,baseline,8,0.08974818335060905,0.59375,0.14281221121691862
