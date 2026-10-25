@@ -12,8 +12,10 @@ Linear SVM and XGBoost classifiers.
 To review the analyses, start with [03 · Topic analysis](notebooks/03_topic_analysis.ipynb)
 and [06 · Model evaluation](notebooks/06_model_evaluation.ipynb). The
 [report assets](report-assets/README.md) contain selected figures and tables.
-[07 · Final evaluation](notebooks/07_final_evaluation.ipynb) is the workflow for
-the team's chosen configuration; its 2026 evaluation has not been run.
+[07 · Final evaluation](notebooks/07_final_evaluation.ipynb) evaluates the selected
+balanced metadata SVM on 2026 bills. Its macro F1 is **0.442**, versus **0.288**
+for the training-majority reference; overall accuracy is **53.0% versus 76.2%**.
+The model recovers some Passed and Failed bills but misclassifies many Pending bills.
 
 ## Workflow
 
@@ -112,9 +114,9 @@ python -m jupyter lab
 ```
 
 Select the **State AI Policy** kernel and run an opened notebook from top to bottom.
-After `prepare.py`, notebooks 03 and 06 can each run independently. The supporting
+After `prepare.py`, notebooks 03, 06 and 07 can each run independently. The supporting
 notebooks in the table below document inspection, preparation and validation;
-they are not prerequisites for those two analyses. The source-validation
+they are not prerequisites for those analyses. The source-validation
 notebook uses saved evidence and runs offline; no API key is needed.
 
 Optional: to execute the full collection, including the supporting notebooks:
@@ -128,13 +130,13 @@ outputs in your local copy.
 
 ### 4. Refresh the report figures and tables
 
-After running notebooks 03 and 06:
+After running notebooks 03, 06 and 07:
 
 ```shell
 python src/export_report_assets.py
 ```
 
-This updates the six figures and two tables in `report-assets/` from the
+This updates the seven figures and four tables in `report-assets/` from the
 generated results. Their sources and meanings are listed in the
 [report-assets guide](report-assets/README.md).
 
@@ -146,7 +148,7 @@ generated results. Their sources and meanings are listed in the
 | `data/processed/analysis_rows.csv` | Notebook 01's record checks and split eligibility |
 | `outputs/topic_analysis/` | Topic tables and figures |
 | `outputs/model_evaluation/` | Evaluation tables and figures |
-| `outputs/final_evaluation/` | Final scores, predictions and settings after selecting a configuration in notebook 07 |
+| `outputs/final_evaluation/` | Selected metadata SVM scores, predictions and settings from notebook 07 |
 
 These outputs are excluded from Git and regenerated locally.
 Selected existing figures and tables are also available in
@@ -175,7 +177,7 @@ common = pd.read_csv(
 | [04 · Source validation](notebooks/04_source_validation.ipynb) | Supporting | Selected outcome checks, text-version review and raw-header screening |
 | [05 · Classification baselines](notebooks/05_classification_baselines.ipynb) | Supporting | Logistic Regression, Linear SVM and XGBoost input comparisons |
 | [06 · Model evaluation](notebooks/06_model_evaluation.ipynb) | Core analysis | Matched classifier and input comparisons, topic features, related-text sensitivity and SVM errors |
-| [07 · Final evaluation](notebooks/07_final_evaluation.ipynb) | Final workflow | One selected configuration trained through 2025 and evaluated on 2026 |
+| [07 · Final evaluation](notebooks/07_final_evaluation.ipynb) | Final evaluation | Selected metadata SVM trained through 2025 and evaluated on 2026 |
 
 Reusable functions are in [src/topic_analysis.py](src/topic_analysis.py) and
 [src/classification_helpers.py](src/classification_helpers.py). Dependencies
@@ -189,9 +191,9 @@ LDA uses word counts. Both use English and legal stopwords and eight topics.
 The descriptive LDA model in notebook 03 uses English stopwords only, so its
 vocabulary differs. Its full-corpus topic exports are not classifier inputs.
 
-In notebook 07, enter the team's chosen configuration before running the final
-evaluation. With no configuration selected, the notebook skips fitting and scoring.
-Choose the settings from the development comparisons before evaluating 2026.
+Notebook 07 retains the balanced metadata SVM with `C=10`. The selection uses
+the earlier development comparisons, model complexity and related-text sensitivity.
+Its settings were fixed before the 2026 test; rerunning reproduces that evaluation.
 
 ## Interpreting the results
 
@@ -202,15 +204,16 @@ outcomes. The source checks document later observations separately without
 replacing the baseline labels. See the
 [text-review findings](data/validation/README.md#using-the-text-review).
 
-Classifiers train on 2019–2024 bills and validate on 2025; the 2026 bills are
-saved for final testing. Notebook 06 also compares earlier-year folds. Small
+Development classifiers train on 2019–2024 bills and validate on 2025;
+notebook 06 also compares earlier-year folds. The final selected model trains
+on 2019–2025 and tests on 2026. Small
 early folds, changing class proportions and related bill texts limit how far
 these results generalize. Chronological splits do not guarantee that related
 bills stay together; the text-similarity check is a separate sensitivity analysis. Topic patterns and model coefficients describe
 associations, not causes of legislative outcomes.
 
-The notebooks contain the current comparisons. Final model selection, the
-2026 evaluation and the written report are still in progress.
+Notebook 07 contains the final test results and class-level tradeoffs.
+The written report is being assembled separately from these reproducible analyses.
 
 ## Related work
 
