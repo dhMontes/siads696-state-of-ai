@@ -58,26 +58,37 @@ uses the same test records as the selected model. The final test scores do not
 replace the historical and development comparisons above. They measure the
 selected configuration on the reserved year and are not used to choose new settings.
 
+## Supplementary source checks
+
+[source_sensitivity_scores.csv](source_sensitivity_scores.csv) contains the
+label-repair and text-input comparisons from [notebook 08](../notebooks/08_source_sensitivity.ipynb).
+These are exploratory pre-2026 development results produced after the final test
+was examined. Row counts and evaluation years identify the different cohorts;
+their scores must not be presented as replacements for the 2026 final results.
+
 ## Refresh the figures and tables
 
 After following the root [setup instructions](../README.md#setup-and-running-the-project),
 run these notebooks from the repository root:
 
 ```shell
-python -m jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.kernel_name=state-ai-policy --ExecutePreprocessor.timeout=1800 notebooks/03_topic_analysis.ipynb notebooks/06_model_evaluation.ipynb
-python -m jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.kernel_name=state-ai-policy --ExecutePreprocessor.timeout=1800 notebooks/07_final_evaluation.ipynb
+python -m nbconvert --execute --to notebook --inplace --ExecutePreprocessor.kernel_name=state-ai-policy --ExecutePreprocessor.timeout=1800 notebooks/03_topic_analysis.ipynb notebooks/06_model_evaluation.ipynb
+python -m nbconvert --execute --to notebook --inplace --ExecutePreprocessor.kernel_name=state-ai-policy --ExecutePreprocessor.timeout=1800 notebooks/07_final_evaluation.ipynb
+python -m nbconvert --execute --to notebook --inplace --ExecutePreprocessor.kernel_name=state-ai-policy --ExecutePreprocessor.timeout=1800 notebooks/08_source_sensitivity.ipynb
 python src/export_report_assets.py
 ```
 
 Notebook 03 writes to `outputs/topic_analysis/`; notebook 06 writes to
 `outputs/model_evaluation/`; notebook 07 writes to `outputs/final_evaluation/`.
+Notebook 08 writes to `outputs/source_sensitivity/`.
 The figures above are unchanged copies of those exports. The historical-family
-and final-evaluation tables are unchanged CSV copies; the topic
+final-evaluation and supplementary source tables are unchanged CSV copies; the topic
 table keeps the three stated runs and the seven columns shown in its header.
 The notebooks contain the full comparisons, sensitivity checks and definitions.
-The export script copies the selected figures, historical table and final tables,
+The export script copies the selected figures and the historical, final and source-check tables,
 then filters the topic comparison to the three runs and seven columns described above.
 
 Sources: [notebook 03](../notebooks/03_topic_analysis.ipynb),
-[notebook 06](../notebooks/06_model_evaluation.ipynb) and
-[notebook 07](../notebooks/07_final_evaluation.ipynb).
+[notebook 06](../notebooks/06_model_evaluation.ipynb),
+[notebook 07](../notebooks/07_final_evaluation.ipynb) and
+[notebook 08](../notebooks/08_source_sensitivity.ipynb).

@@ -17,6 +17,10 @@ balanced metadata SVM on 2026 bills. Its macro F1 is **0.442**, versus **0.288**
 for the training-majority reference; overall accuracy is **53.0% versus 76.2%**.
 The model recovers some Passed and Failed bills but misclassifies many Pending bills.
 
+[08 · Source sensitivity](notebooks/08_source_sensitivity.ipynb) examines whether
+dated outcome corrections and different text inputs change the development results.
+These supplementary checks use pre-2026 bills and do not replace the final test.
+
 ## Workflow
 
 ```text
@@ -114,7 +118,7 @@ python -m jupyter lab
 ```
 
 Select the **State AI Policy** kernel and run an opened notebook from top to bottom.
-After `prepare.py`, notebooks 03, 06 and 07 can each run independently. The supporting
+After `prepare.py`, notebooks 03, 06, 07 and 08 can each run independently. The supporting
 notebooks in the table below document inspection, preparation and validation;
 they are not prerequisites for those analyses. The source-validation
 notebook uses saved evidence and runs offline; no API key is needed.
@@ -122,7 +126,7 @@ notebook uses saved evidence and runs offline; no API key is needed.
 Optional: to execute the full collection, including the supporting notebooks:
 
 ```shell
-python -m jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.kernel_name=state-ai-policy --ExecutePreprocessor.timeout=1800 "notebooks/*.ipynb"
+python -m nbconvert --execute --to notebook --inplace --ExecutePreprocessor.kernel_name=state-ai-policy --ExecutePreprocessor.timeout=1800 "notebooks/*.ipynb"
 ```
 
 Model runs can take several minutes. This command replaces the saved notebook
@@ -130,13 +134,13 @@ outputs in your local copy.
 
 ### 4. Refresh the report figures and tables
 
-After running notebooks 03, 06 and 07:
+After running notebooks 03, 06, 07 and 08:
 
 ```shell
 python src/export_report_assets.py
 ```
 
-This updates the seven figures and four tables in `report-assets/` from the
+This updates the seven figures and five tables in `report-assets/` from the
 generated results. Their sources and meanings are listed in the
 [report-assets guide](report-assets/README.md).
 
@@ -149,6 +153,7 @@ generated results. Their sources and meanings are listed in the
 | `outputs/topic_analysis/` | Topic tables and figures |
 | `outputs/model_evaluation/` | Evaluation tables and figures |
 | `outputs/final_evaluation/` | Selected metadata SVM scores, predictions and settings from notebook 07 |
+| `outputs/source_sensitivity/` | Supplementary source-label and text comparisons from notebook 08 |
 
 These outputs are excluded from Git and regenerated locally.
 Selected existing figures and tables are also available in
@@ -178,6 +183,7 @@ common = pd.read_csv(
 | [05 · Classification baselines](notebooks/05_classification_baselines.ipynb) | Supporting | Logistic Regression, Linear SVM and XGBoost input comparisons |
 | [06 · Model evaluation](notebooks/06_model_evaluation.ipynb) | Core analysis | Matched classifier and input comparisons, topic features, related-text sensitivity and SVM errors |
 | [07 · Final evaluation](notebooks/07_final_evaluation.ipynb) | Final evaluation | Selected metadata SVM trained through 2025 and evaluated on 2026 |
+| [08 · Source sensitivity](notebooks/08_source_sensitivity.ipynb) | Supplementary analysis | Dated outcome corrections, text inputs and feature checks on pre-2026 bills |
 
 Reusable functions are in [src/topic_analysis.py](src/topic_analysis.py) and
 [src/classification_helpers.py](src/classification_helpers.py). Dependencies

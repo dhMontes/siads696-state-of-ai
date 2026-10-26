@@ -1,7 +1,7 @@
 # Source validation
 
-These tables document selected source checks without changing the published
-data or model labels. The original sample contains 18 bills, six each from
+These tables document source checks without changing the published
+data or main-model labels. The original sample contains 18 bills, six each from
 California, Colorado and Texas. Two sponsor cases extend the identity and
 text-version checks to 20 records. This convenience sample does not estimate
 error rates for the full corpus.
@@ -9,6 +9,23 @@ error rates for the full corpus.
 [Notebook 04](../../notebooks/04_source_validation.ipynb) compares the saved
 observations and screens the raw text headers. It runs offline with the existing
 project dependencies; no API key or new source request is needed.
+
+The larger [source-outcome audit](source_outcome_audit.csv) matches 1,523 ordinary
+bills to LegiScan histories retrieved October 25, 2026. [Notebook 08](../../notebooks/08_source_sensitivity.ipynb)
+uses this saved evidence for a separate, retrospective development comparison.
+It supports 39 Pending-to-Passed corrections: 18 through the training cutoff of
+December 31, 2024 and 21 through the evaluation cutoff of December 31, 2025.
+Five veto cases with pending consideration lack dated closure evidence by their
+cutoffs and retain their source labels. A current session-closure flag is not a
+historical closure date. Of the matched bills, 311 have independently resolved
+outcomes; the other 1,212 retain unverified source labels.
+
+The audit stores the source row, matched bill/session IDs, source URL, retrieval
+time, cutoff, outcome evidence and text-version dates. A blank corrected label
+means no conclusive update was applied. Notebook 08 reproduces the comparisons
+from these saved observations without API access; it does not rerun live retrieval
+or replace the original 2026 evaluation. LegiScan supplies the linked bill histories;
+the source corpus remains the Zenodo dataset described in the root README.
 
 ## Files
 
@@ -22,6 +39,7 @@ project dependencies; no API key or new source request is needed.
 | [sponsor_resolution.csv](sponsor_resolution.csv) | Current rosters for those two cases, with historical text versions and sponsor-role differences kept separate. |
 | [text_version_review.csv](text_version_review.csv) | References for 20 records: 79 available versions, 19 introduced references and one undated Delaware Draft. |
 | [source_text_review.csv](source_text_review.csv) | October 20 date/header review of those 20 source texts, linked to the raw file and saved October 19 version evidence. |
+| [source_outcome_audit.csv](source_outcome_audit.csv) | October 25 LegiScan observations for 1,523 matched pre-2026 ordinary bills, with dated outcome evidence and explicit unresolved cases. |
 
 `source_row` is the one-based record position in `data/raw/Final_Database.csv`,
 not a unique-bill identifier or model input. The raw file preserves the published
@@ -45,7 +63,7 @@ not a unique-bill identifier or model input. The raw file preserves the publishe
 ## Findings and outcome dates
 
 All 20 reviewed records match the checked bill and session identities. The other
-2,547 prepared records have not received these checks. Seven intermediate-stage
+2,547 prepared records have not received these detailed text/sponsor checks. Seven intermediate-stage
 bills in closed sessions already have source status `Failed - Adjourned`; the
 checks support keeping those labels. Four source-Pending bills have later
 signing or chaptering evidence, which remains separate from the model labels.
@@ -102,7 +120,7 @@ or outcome changes.
 ## Sources and attribution
 
 - Bhargava and Soliman, [U.S. State AI Legislation Corpus v4](https://zenodo.org/records/20781731).
-- [LegiScan](https://legiscan.com/) API metadata/history, retrieved October 19,
+- [LegiScan](https://legiscan.com/) API metadata/history, retrieved October 19 and 25,
   2026, under [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/).
   The comparison tables select, rename and reorganize provider fields, link them
   to source rows and add official-source observations. Stage labels follow the
