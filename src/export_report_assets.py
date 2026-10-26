@@ -1,4 +1,4 @@
-"""Refresh the report figures and tables from notebooks 03, 06 and 07."""
+"""Refresh the report figures and tables from notebooks 03, 06, 07 and 08."""
 
 from pathlib import Path
 import shutil
@@ -10,6 +10,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 TOPIC_OUTPUTS = PROJECT_ROOT / "outputs" / "topic_analysis"
 MODEL_OUTPUTS = PROJECT_ROOT / "outputs" / "model_evaluation"
 FINAL_OUTPUTS = PROJECT_ROOT / "outputs" / "final_evaluation"
+SOURCE_OUTPUTS = PROJECT_ROOT / "outputs" / "source_sensitivity"
 REPORT_ASSETS = PROJECT_ROOT / "report-assets"
 
 COPIES = {
@@ -23,6 +24,7 @@ COPIES = {
     FINAL_OUTPUTS / "scores.csv": "final_scores.csv",
     FINAL_OUTPUTS / "classification_report.csv": "final_classification_report.csv",
     FINAL_OUTPUTS / "confusion_matrix.png": "final_confusion_matrix.png",
+    SOURCE_OUTPUTS / "scores.csv": "source_sensitivity_scores.csv",
 }
 TOPIC_RUNS = [
     "nmf_baseline_k8_seed42_nndsvda",
@@ -41,7 +43,7 @@ def main():
     missing = [path.relative_to(PROJECT_ROOT) for path in required_files if not path.is_file()]
     if missing:
         raise SystemExit(
-            "Run notebooks 03, 06 and 07 before exporting report assets. Missing:\n"
+            "Run notebooks 03, 06, 07 and 08 before exporting report assets. Missing:\n"
             + "\n".join(str(path) for path in missing)
         )
 
@@ -53,7 +55,7 @@ def main():
     for source, filename in COPIES.items():
         shutil.copyfile(source, REPORT_ASSETS / filename)
     topic_table.to_csv(REPORT_ASSETS / "topic_method_comparison.csv", index=False)
-    print("Updated seven figures and four tables in report-assets/.")
+    print("Updated seven figures and five tables in report-assets/.")
 
 
 if __name__ == "__main__":
