@@ -20,6 +20,11 @@ The model recovers some Passed and Failed bills but misclassifies many Pending b
 [08 · Source sensitivity](notebooks/08_source_sensitivity.ipynb) examines whether
 dated outcome corrections and different text inputs change the development results.
 These supplementary checks use pre-2026 bills and do not replace the final test.
+Read the saved results in notebook 08, or rerun it with the setup below.
+Its [helper functions](src/source_sensitivity.py) use the
+[saved source audit](data/validation/source_outcome_audit.csv); the
+[results table](report-assets/source_sensitivity_scores.csv) is also available
+separately for the report.
 
 ## Workflow
 
