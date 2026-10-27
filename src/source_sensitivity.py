@@ -195,9 +195,9 @@ def paired_state_bootstrap(predictions, original="Original labels", repaired="Re
     repaired_pred = updated.Predicted.map(codes).to_numpy()
 
     def macro_f1(actual, predicted):
-        matrix = np.bincount(actual * 3 + predicted, minlength=9).reshape(3, 3)
-        denominator = matrix.sum(axis=0) + matrix.sum(axis=1)
-        return np.divide(2 * np.diag(matrix), denominator, out=np.zeros(3), where=denominator != 0).mean()
+        return f1_score(
+            actual, predicted, labels=[0, 1, 2], average="macro", zero_division=0,
+        )
 
     groups = [np.flatnonzero(baseline.Jurisdiction.eq(state).to_numpy())
               for state in sorted(baseline.Jurisdiction.unique())]
